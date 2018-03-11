@@ -1,2 +1,2 @@
-# ques0942.github.io
-dustbox
+# dustbox
+暇つぶしで作ったクソアプリ置き場(ゴミ箱)
