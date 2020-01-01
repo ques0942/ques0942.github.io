@@ -1,1 +1,0 @@
-{{- dict "title" .Title "date" .Date "draft" .Draft "content" .Content | jsonify -}}
