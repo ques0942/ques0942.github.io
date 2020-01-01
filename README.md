@@ -1,2 +1,2 @@
-# dustbox
-暇つぶしで作ったクソアプリ置き場(ゴミ箱)
+# ques0942 blog
+use Hugo

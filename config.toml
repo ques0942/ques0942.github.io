@@ -1,0 +1,13 @@
+baseURL = "/"
+languageCode = "en-us"
+title = "常にいまいち"
+theme = "hyde"
+
+[Params]
+author = "ques0942"
+description = "blog for something"
+
+[outputs]
+home = ["HTML"]
+section = ["HTML"]
+page = ["HTML"]
