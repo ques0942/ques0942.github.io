@@ -8,6 +8,6 @@ author = "ques0942"
 description = "blog for something"
 
 [outputs]
-home = ["HTML", "JSON"]
-section = ["HTML", "JSON"]
-page = ["HTML", "JSON"]
+home = ["HTML"]
+section = ["HTML"]
+page = ["HTML"]
