@@ -56,6 +56,10 @@ page = ["HTML", "JSON"]
 ページのコンテンツから **title**、 **date**、 **draft**、 **content** を返すことにする。  
 今後必要な項目が発生した場合はこれに追記することになる。
 
+**追記**  
+このやり方では **content** にダブルクォーテーションなどが入った場合のエスケープが不十分なので[別途修正が必要](../fix-json-api-bug/)。
+
+
 #### layouts/_default/single.json.json
 ```
 {{ define "response" }} {{ .Render "item" }} {{ end }}
