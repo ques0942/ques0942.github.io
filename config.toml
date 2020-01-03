@@ -2,6 +2,7 @@ baseURL = "/"
 languageCode = "en-us"
 title = "常にいまいち"
 theme = "hyde"
+googleAnalytics = "UA-155249985-1"
 
 [Params]
 author = "ques0942"
