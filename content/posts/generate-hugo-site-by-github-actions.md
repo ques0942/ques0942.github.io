@@ -1,7 +1,7 @@
 ---
 title: "GitHub Actionsを使ってHugo製のサイトをデプロイする"
 date: 2020-01-02T01:17:02+09:00
-draft: true
+draft: false
 ---
 
 この[action](https://github.com/peaceiris/actions-gh-pages)を使えば難しいことはない。
