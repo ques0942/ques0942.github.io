@@ -1,18 +1,16 @@
 name: pullrequest from issue
 
 on:
-  issues:
-    types: [opened, edited]
+  push:
     branches:
       - pullrequest-from-issues
+  issues:
+    types: [opened, edited]
 
 jobs:
   display:
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v1
-        with:
-          submodules: true
       - name: display
         run: |
           echo {{github.event}}
