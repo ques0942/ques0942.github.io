@@ -3,6 +3,8 @@ name: pullrequest from issue
 on:
   issues:
     types: [opened, edited]
+    brancches:
+      - pullrequest-from-issues
 
 jobs:
   display:
