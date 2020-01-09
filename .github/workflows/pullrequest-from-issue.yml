@@ -1,10 +1,6 @@
 name: pullrequest from issue
 
-on:
-  push:
-    branches:
-      - pullrequest-from-issues
-  issues:
+on: issues
 
 jobs:
   display:
