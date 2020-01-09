@@ -10,5 +10,6 @@ jobs:
       - uses: actions/checkout@v1
         with:
           submodules: true
+      - name: display
         run: |
           echo {{github.event}}
