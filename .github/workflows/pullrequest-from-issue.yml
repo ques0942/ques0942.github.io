@@ -2,6 +2,7 @@ name: pullrequest from issue
 
 on:
   issues:
+    types: [opened, edited]
 
 jobs:
   display:
