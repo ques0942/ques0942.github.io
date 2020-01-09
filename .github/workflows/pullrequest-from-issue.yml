@@ -5,7 +5,6 @@ on:
     branches:
       - pullrequest-from-issues
   issues:
-    types: [opened, edited]
 
 jobs:
   display:
