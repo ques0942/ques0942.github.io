@@ -1,6 +1,8 @@
 name: pullrequest from issue
 
-on: issues
+on:
+  issues:
+    types: [opened, edited, unlabeled]
 
 jobs:
   display:
