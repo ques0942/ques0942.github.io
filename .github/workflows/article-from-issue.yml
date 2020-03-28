@@ -24,6 +24,7 @@ jobs:
           git checkout -b ${BRANCH}
 
   create_md:
+    runs-on: ubuntu-18.04
     needs: checkout
     if: |
       (${ACTION} == "opend" || ${ACTION == "edited") \
