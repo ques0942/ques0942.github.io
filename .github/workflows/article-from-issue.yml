@@ -4,9 +4,35 @@ on:
   issues:
     types: [opened, edited, unlabeled]
 
+env:
+  ISSUE_ID: ${{ github.event.issue.id }}
+  ISSUE_BODY: ${{ github.event.issue.body }}
+  BRANCH: from_issue-${ISSUE_ID}
+  MD_PATH: content/posts/${ISSUE_ID}.md
+  ACTION: ${{ github.event.action }}
+
 jobs:
-  display:
+  checkout:
     runs-on: ubuntu-18.04
     steps:
-      - name: display
-        run: echo '${{ toJson(github.event) }}'
+      - uses: actions/checkout@v1
+        with:
+          ref: source
+          submodules: true
+      - name: create branch
+        run: |
+          git checkout -b ${BRANCH}
+
+  create_md:
+    needs: checkout
+    if: |
+      (${ACTION} == "opend" || ${ACTION == "edited") \
+      && contains(github.event.issue.labels.*.name, "article")
+    steps:
+      - name: dump issue
+        run: |
+          echo ${ISSUE_BODY} > ${MD_PATH}
+          git add ${MD_PATH}
+          git commit -m "add post from issue #${ISSUE_ID}"
+          echo git push -u origin ${BRANCH}
+
