@@ -1,0 +1,10 @@
+name: pullrequest from issue
+
+on: issues
+
+jobs:
+  display:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: display
+        run: echo '${{ toJson(github.event) }}'
