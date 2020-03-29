@@ -31,4 +31,4 @@ jobs:
           git config --global user.name "github actions"
           git add ${MD_PATH}
           git commit -m "add post from issue #${ISSUE_ID}"
-          echo git push -u origin ${BRANCH}
+          git push -u origin ${BRANCH}
