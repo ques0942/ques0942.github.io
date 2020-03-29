@@ -24,6 +24,7 @@ jobs:
 
   debug:
     runs-on: ubuntu-18.04
+    needs: checkout
     steps:
       - name: debug
         run: ls
