@@ -31,8 +31,8 @@ jobs:
           git config --global user.name "ques0942"
           git add ${MD_PATH}
           git commit -m "add post from issue #${ISSUE_ID}"
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-        branch: ${BRANCH}
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          branch: ${BRANCH}
