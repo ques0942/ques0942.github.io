@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-18.04
     needs: checkout
     if: |
-      (${{ env.ACTION }} == "opend" || ${{ env.ACTION }} == "edited") \
+      (env.ACTION == "opend" || env.ACTION == "edited") \
       && contains(github.event.issue.labels.*.name, "article")
     steps:
       - name: dump issue
@@ -36,4 +36,3 @@ jobs:
           git add ${MD_PATH}
           git commit -m "add post from issue #${ISSUE_ID}"
           echo git push -u origin ${BRANCH}
-
