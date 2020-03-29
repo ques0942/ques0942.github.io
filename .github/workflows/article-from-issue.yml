@@ -21,6 +21,7 @@ jobs:
       - name: create branch
         run: |
           git checkout -b ${BRANCH}
+          ls
 
   debug:
     runs-on: ubuntu-18.04
