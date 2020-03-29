@@ -27,6 +27,8 @@ jobs:
       - name: dump issue
         run: |
           echo ${ISSUE_BODY} > ${MD_PATH}
+          git config --global user.email "github-actions@example.com"
+          git config --global user.name "github actions"
           git add ${MD_PATH}
           git commit -m "add post from issue #${ISSUE_ID}"
           echo git push -u origin ${BRANCH}
