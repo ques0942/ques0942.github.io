@@ -26,7 +26,7 @@ jobs:
           git checkout -b ${BRANCH}
       - name: dump issue
         run: |
-          echo ${ISSUE_BODY} > ${MD_PATH}
+          echo -e ${ISSUE_BODY} > ${MD_PATH}
           git config --global user.email "nari0942@gmail.com"
           git config --global user.name "ques0942"
           git add ${MD_PATH}
