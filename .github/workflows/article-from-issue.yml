@@ -27,6 +27,8 @@ jobs:
     needs: checkout
     steps:
       - name: debug
+        run: pwd
+      - name: debug
         run: ls
       - name: debug2
         run: ls content
