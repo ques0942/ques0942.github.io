@@ -9,7 +9,6 @@ env:
   ISSUE_BODY: ${{ github.event.issue.body }}
   BRANCH: from_issue-${ISSUE_ID}
   MD_PATH: content/posts/${ISSUE_ID}.md
-  ACTION: ${{ github.event.action }}
 
 jobs:
   checkout:
@@ -27,7 +26,7 @@ jobs:
     runs-on: ubuntu-18.04
     needs: checkout
     if: |
-      (env.ACTION == "opend" || env.ACTION == "edited") \
+      (github.event.action == "opend" || github.event.action == "edited") \
       && contains(github.event.issue.labels.*.name, "article")
     steps:
       - name: dump issue
