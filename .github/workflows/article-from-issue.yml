@@ -17,7 +17,7 @@ jobs:
       (github.event.action == 'opend' || github.event.action == 'edited')
       && contains(github.event.issue.labels.*.name, 'article')
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@master
         with:
           ref: source
           submodules: true
@@ -31,4 +31,8 @@ jobs:
           git config --global user.name "ques0942"
           git add ${MD_PATH}
           git commit -m "add post from issue #${ISSUE_ID}"
-          git push -u origin ${BRANCH}
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        branch: ${BRANCH}
