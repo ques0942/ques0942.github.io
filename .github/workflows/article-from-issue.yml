@@ -31,6 +31,9 @@ jobs:
     steps:
       - name: dump issue
         run: |
+          ls
+          ls content
+          ls content/posts
           echo ${ISSUE_BODY} > ${MD_PATH}
           git add ${MD_PATH}
           git commit -m "add post from issue #${ISSUE_ID}"
