@@ -13,6 +13,9 @@ env:
 jobs:
   checkout:
     runs-on: ubuntu-18.04
+    if: |
+      (github.event.action == 'opend' || github.event.action == 'edited')
+      && contains(github.event.issue.labels.*.name, 'article')
     steps:
       - uses: actions/checkout@v1
         with:
@@ -21,28 +24,6 @@ jobs:
       - name: create branch
         run: |
           git checkout -b ${BRANCH}
-          ls
-
-  debug:
-    runs-on: ubuntu-18.04
-    needs: checkout
-    steps:
-      - name: debug
-        run: pwd
-      - name: debug
-        run: ls
-      - name: debug2
-        run: ls content
-      - name: debug3
-        run: ls content/posts
-
-  create_md:
-    runs-on: ubuntu-18.04
-    needs: checkout
-    if: |
-      (github.event.action == 'opend' || github.event.action == 'edited')
-      && contains(github.event.issue.labels.*.name, 'article')
-    steps:
       - name: dump issue
         run: |
           echo ${ISSUE_BODY} > ${MD_PATH}
