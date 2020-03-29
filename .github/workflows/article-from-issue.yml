@@ -7,6 +7,8 @@ on:
 env:
   ISSUE_ID: ${{ github.event.issue.id }}
   ISSUE_BODY: ${{ github.event.issue.body }}
+
+env:
   BRANCH: from_issue-${ISSUE_ID}
   MD_PATH: content/posts/${ISSUE_ID}.md
 
