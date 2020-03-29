@@ -22,6 +22,16 @@ jobs:
         run: |
           git checkout -b ${BRANCH}
 
+  debug:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: debug
+        run: ls
+      - name: debug2
+        run: ls content
+      - name: debug3
+        run: ls content/posts
+
   create_md:
     runs-on: ubuntu-18.04
     needs: checkout
@@ -31,9 +41,6 @@ jobs:
     steps:
       - name: dump issue
         run: |
-          ls
-          ls content
-          ls content/posts
           echo ${ISSUE_BODY} > ${MD_PATH}
           git add ${MD_PATH}
           git commit -m "add post from issue #${ISSUE_ID}"
