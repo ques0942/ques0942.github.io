@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-18.04
     needs: checkout
     if: |
-      (github.event.action == 'opend' || github.event.action == 'edited') \
+      (github.event.action == 'opend' || github.event.action == 'edited')
       && contains(github.event.issue.labels.*.name, 'article')
     steps:
       - name: dump issue
