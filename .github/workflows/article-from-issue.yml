@@ -11,7 +11,7 @@ env:
   MD_PATH: content/posts/${{ github.event.issue.id }}.md
 
 jobs:
-  checkout:
+  create_article_branch:
     runs-on: ubuntu-18.04
     if: |
       (github.event.action == 'opend' || github.event.action == 'edited')
@@ -27,8 +27,8 @@ jobs:
       - name: dump issue
         run: |
           echo ${ISSUE_BODY} > ${MD_PATH}
-          git config --global user.email "github-actions@example.com"
-          git config --global user.name "github actions"
+          git config --global user.email "nari0942@gmail.com"
+          git config --global user.name "ques0942"
           git add ${MD_PATH}
           git commit -m "add post from issue #${ISSUE_ID}"
           git push -u origin ${BRANCH}
