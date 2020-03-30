@@ -24,22 +24,14 @@ jobs:
         with:
           ref: source
           submodules: true
-      #- name: create branch
-      #  run: |
-      #    git checkout -b ${BRANCH}
       - name: dump issue
         run: |
           echo -e "${ISSUE_BODY}" > ${MD_PATH}
-          #git config --global user.email "nari0942@gmail.com"
-          #git config --global user.name "ques0942"
-          #git add ${MD_PATH}
-          #git commit -m "add post from issue #${ISSUE_ID}"
       - name: Create pull request
         uses: peter-evans/create-pull-request@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ env.BRANCH }}
           base: "source"
-          commit-message: "add post from issue #${ISSUE_ID}"
-          title: "add post from issue '${ISSUE_TITLE}'"
-          force: true
+          commit-message: "add post from issue #${{ env.ISSUE_ID}}"
+          title: "add post from issue ${{ env.ISSUE_TITLE}}"
