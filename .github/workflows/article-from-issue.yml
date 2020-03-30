@@ -2,7 +2,7 @@ name: pullrequest from issue
 
 on:
   issues:
-    types: [opened, edited, unlabeled]
+    types: [opened, edited, labeled, unlabeled]
 
 env:
   ISSUE_ID: ${{ github.event.issue.id }}
@@ -11,10 +11,12 @@ env:
   MD_PATH: content/posts/${{ github.event.issue.id }}.md
 
 jobs:
-  create_article_branch:
+  create_article:
     runs-on: ubuntu-18.04
     if: |
-      (github.event.action == 'opend' || github.event.action == 'edited')
+      (github.event.action == 'opend'
+      || github.event.action == 'edited'
+      || github.event.action == 'labeled')
       && contains(github.event.issue.labels.*.name, 'article')
     steps:
       - uses: actions/checkout@master
