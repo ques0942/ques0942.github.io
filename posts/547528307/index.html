@@ -1,0 +1,23 @@
+<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us><head><link href=https://gmpg.org/xfn/11 rel=profile><meta charset=utf-8><meta name=generator content="Hugo 0.62.0"><meta name=viewport content="width=device-width,initial-scale=1"><title>&#183; 常にいまいち</title><meta name=description content><link type=text/css rel=stylesheet href=/css/print.css media=print><link type=text/css rel=stylesheet href=/css/poole.css><link type=text/css rel=stylesheet href=/css/syntax.css><link type=text/css rel=stylesheet href=/css/hyde.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700"><link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png><link rel="shortcut icon" href=/favicon.png></head><body><aside class=sidebar><div class="container sidebar-sticky"><div class=sidebar-about><a href=/><h1>常にいまいち</h1></a><p class=lead>blog for something</p></div><nav><ul class=sidebar-nav><li><a href=/>Home</a></li></ul></nav><p>&copy; 2020. All rights reserved.</p></div></aside><main class="content container"><div class=post><h1></h1><time datetime=0001-01-01T00:00:00Z class=post-date>Mon, Jan 1, 0001</time><h1 id=github-issuegithubactions>Github Issueから発生するイベントをトリガーにしてGithubActionsを動かしてみる</h1><p>具体的にはIssueに特定のラベルが付いていたらそれを元にGithub Pagesに記事を追加したい。
+試しに <a href=https://github.com/ques0942/ques0942.github.io/pull/8>このブランチ</a> でテストを行ったがうまく行かなかった。
+<a href=https://github.com/ques0942/ques0942.github.io/pull/8>ブランチ</a> に含まれるworkflowはpushでは起動するがissuesで動かない。</p><p>masterじゃないと動かないという制限があるかも? ということで
+新規レポジトリ作ってmasterにactionsを登録したら動いた。
+<a href="https://github.com/ques0942/github-actions-sample/commit/ee6bf81ebec027eda315d135aacd744def3e8ca8/checks?check_suite_id=393358382">https://github.com/ques0942/github-actions-sample/commit/ee6bf81ebec027eda315d135aacd744def3e8ca8/checks?check_suite_id=393358382</a></p><p>こちらのレポジトリでもPRの段階ではissuesからのイベントでは起動されなかった。
+やはり何かしら制限がありそう。
+トリガーされるイベントが多すぎるので制限されるのもわからないではないが、masterでしかテストできないのはなかなか不便。</p><h3 id=heading>結論</h3><p><a href=https://help.github.com/ja/actions/reference/events-that-trigger-workflows>この資料</a>に記載があったが、masterかデフォルトブランチに設定がないと起動しない模様。</p><h1 id=memo>memo</h1><h2 id=heading-1>特定のラベルが含まれているか調べるには</h2><p>https://github.community/t5/GitHub-Actions/Do-something-if-a-particular-label-is-set/td-p/40712#</p><h2 id=heading-2>コンテキストの中身を確認する</h2><p>以下のようにechoを使うことで中身をダンプできる。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>name: pullrequest from issue
+
+on: issues
+
+jobs:
+  display:
+    runs-on: ubuntu<span style=color:#ae81ff>-18.04</span>
+    steps:
+      - name: display
+        run: echo <span style=color:#e6db74>&#39;${{ toJson(github.event) }}&#39;</span>
+</code></pre></div><h2 id=if>if節関連</h2><p>if節の中ではenvは使えない。${VAR}でもenv.VARでも駄目だった。
+if節の中では文字列はシングルクォーテーションのみ。ダブルクォーテーションでは駄目。
+バックスラッシュで改行することはできない。</p><h2 id=env>env関連</h2><h3 id=env-1>envの中で定義済みの変数を展開することはできないっぽい</h3><p>envで変数を定義するときに以下のように定義しても展開されない模様。</p><pre><code>VAR: 1
+VAR2: ${VAR}-2
+</code></pre><p>envを複数定義することもできないのでこれに関しては諦めるしかなさそう。</p><h3 id=actionwith>actionのwithで環境変数を使う</h3><p>stepsでactionを使用する場合withで引数を渡すが、ここにenvで定義した環境変数を渡したい場合は <code>$VAR</code> とするのではなく、 <code>env.VAR</code> とする必要がある。</p><h2 id=git>git関連</h2><p>git pushをrun内で実行するとうまく行かなかったので<a href=https://github.com/ad-m/github-push-action>action</a>使ったほうが良さそう。</p><h2 id=github>github関連</h2><p>前述のpush actionも良いが、<a href=https://github.com/peter-evans/create-pull-request>このaction</a> を使用すると、gitへのcommit及びpull requestの作成をやってくれるのでかなり楽に実現できる。
+steps内でファイルの追加、削除、更新してこのactionを実行するとそれらをまとめてcommitしてpull requestを作成してくれる。
+ただし変更差分は全てcommitされるので不要なファイルを無視するか削除する必要がある。</p></div></main><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-155249985-1','auto');ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>
