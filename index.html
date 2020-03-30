@@ -17,7 +17,29 @@ cloud gcp {
 node "node1" as nd1 &lt;&lt;QA>>
 node "node2" as nd2 &lt;&lt;DEVELOP>> }
 図の向き top to bottom direction 、 left to right direction のように図の先頭に書いておくと、 図の向きを上から下、左から右のように制御することができる。
-レイアウト 基本的にレイアウトは全て自動で設定されるが、見えないエッジを定義することで多少の制御は可能。あくまでも多少なのできれいにレイアウトすることは諦めたほうが良い。どうしても線が重なって見づらいときなどの緊急避難用。<div class=read-more-link><a href=/posts/550549656/>Read More…</a></div></article><article class=post><h1 class=post-title><a href=/posts/go-sqlmock-tips/>go-sqlmockのTips</a></h1><time datetime=2020-01-14T21:04:12+0900 class=post-date>Tue, Jan 14, 2020</time>
+レイアウト 基本的にレイアウトは全て自動で設定されるが、見えないエッジを定義することで多少の制御は可能。あくまでも多少なのできれいにレイアウトすることは諦めたほうが良い。どうしても線が重なって見づらいときなどの緊急避難用。<div class=read-more-link><a href=/posts/550549656/>Read More…</a></div></article><article class=post><h1 class=post-title><a href=/posts/547528307/>IssueのトリガーでGithub Actionsを動かしてみる</a></h1><time datetime=2020-03-30T04:50:58Z class=post-date>Mon, Mar 30, 2020</time>
+Github Issueから発生するイベントをトリガーにしてGithubActionsを動かしてみる 具体的にはIssueに特定のラベルが付いていたらそれを元にGithub Pagesに記事を追加したい。 試しに このブランチ でテストを行ったがうまく行かなかった。 ブランチ に含まれるworkflowはpushでは起動するがissuesで動かない。
+masterじゃないと動かないという制限があるかも? ということで 新規レポジトリ作ってmasterにactionsを登録したら動いた。 https://github.com/ques0942/github-actions-sample/commit/ee6bf81ebec027eda315d135aacd744def3e8ca8/checks?check_suite_id=393358382
+こちらのレポジトリでもPRの段階ではissuesからのイベントでは起動されなかった。 やはり何かしら制限がありそう。 トリガーされるイベントが多すぎるので制限されるのもわからないではないが、masterでしかテストできないのはなかなか不便。
+結論 この資料に記載があったが、masterかデフォルトブランチに設定がないと起動しない模様。
+memo 特定のラベルが含まれているか調べるには https://github.community/t5/GitHub-Actions/Do-something-if-a-particular-label-is-set/td-p/40712#
+コンテキストの中身を確認する 以下のようにechoを使うことで中身をダンプできる。
+name: pullrequest from issue
+on: issues
+jobs:
+display:
+runs-on: ubuntu-18.04
+steps:
+- name: display
+run: echo '${{ toJson(github.event) }}'
+if節関連 if節の中ではenvは使えない。${VAR}でもenv.VARでも駄目だった。 if節の中では文字列はシングルクォーテーションのみ。ダブルクォーテーションでは駄目。 バックスラッシュで改行することはできない。
+env関連 envの中で定義済みの変数を展開することはできないっぽい envで変数を定義するときに以下のように定義しても展開されない模様。
+VAR: 1
+VAR2: ${VAR}-2
+envを複数定義することもできないのでこれに関しては諦めるしかなさそう。
+actionのwithで環境変数を使う stepsでactionを使用する場合withで引数を渡すが、ここにenvで定義した環境変数を渡したい場合は $VAR とするのではなく、 env.VAR とする必要がある。
+git関連 git pushをrun内で実行するとうまく行かなかったのでaction使ったほうが良さそう。
+github関連 前述のpush actionも良いが、このaction を使用すると、gitへのcommit及びpull requestの作成をやってくれるのでかなり楽に実現できる。 steps内でファイルの追加、削除、更新してこのactionを実行するとそれらをまとめてcommitしてpull requestを作成してくれる。 ただし変更差分は全てcommitされるので不要なファイルを無視するか削除する必要がある。</article><article class=post><h1 class=post-title><a href=/posts/go-sqlmock-tips/>go-sqlmockのTips</a></h1><time datetime=2020-01-14T21:04:12+0900 class=post-date>Tue, Jan 14, 2020</time>
 まとめ 動作確認したのは v1.3.3 database/sqlのテストはgo-sqlmockを使うと比較的楽に行える クエリのmatcherには正規表現が使える Rowsからエラーを受け取りたい場合は、エラーが発生する行のデータを作る必要がある 不要なエラーのチェックだけならsqlmock.ExpectationsWereMetは呼び出さなくてもよい まえがき golangでSQLを使うコードを書く場合、database/sql を使うことになるが、golangの標準ライブラリだけでこれのテストを書くことは非常に辛い。 おそらくDBを実際に用意してテストするしか無いが、様々なエラーケースのテストが必要な場合それだけではテストしきれない。 この記事ではDATADOG/go-sqlmockを使ってテストした際のTipsをまとめておく。
 はじめに 基礎的な部分はREADME.mdやexamples、godocを読めば事足りるが、以下に忘れがちな内容を記載する。
 Query matcher クエリが実行されたかどうかをチェックするにあたって、呼び出された回数だけをチェックしたいケースが有る。 このような場合は、正規表現を使うことで対処できる。
@@ -53,26 +75,4 @@ https://gohugo.io/functions/jsonify/#readout https://knooto.info/hugo-snippets/#
 baseof.json.json item.json.json single.json.json list.json.json layouts/_default/baseof.json.json { "data" : {{ block "response" .}}{{ end }} } このブログのJSONレスポンスは全てdata プロパティとして response ブロックをレンダリングして返す。 各 pageKindでは responseを定義する。
 layouts/_default/item.json.json { "title": "{{ .Title }}", "date": "{{ .<div class=read-more-link><a href=/posts/hugo-as-json-api/>Read More…</a></div></article><article class=post><h1 class=post-title><a href=/posts/first-post/>First Post</a></h1><time datetime=2020-01-01T18:44:41+0900 class=post-date>Wed, Jan 1, 2020</time>
 ブログを放置しっぱなしだったので作り直してみる。
-とりあえず手っ取り早くできる hugo + Github Page で作り直した。</article><article class=post><h1 class=post-title><a href=/posts/547528307/></a></h1><time datetime=0001-01-01T00:00:00Z class=post-date>Mon, Jan 1, 0001</time>
-Github Issueから発生するイベントをトリガーにしてGithubActionsを動かしてみる 具体的にはIssueに特定のラベルが付いていたらそれを元にGithub Pagesに記事を追加したい。 試しに このブランチ でテストを行ったがうまく行かなかった。 ブランチ に含まれるworkflowはpushでは起動するがissuesで動かない。
-masterじゃないと動かないという制限があるかも? ということで 新規レポジトリ作ってmasterにactionsを登録したら動いた。 https://github.com/ques0942/github-actions-sample/commit/ee6bf81ebec027eda315d135aacd744def3e8ca8/checks?check_suite_id=393358382
-こちらのレポジトリでもPRの段階ではissuesからのイベントでは起動されなかった。 やはり何かしら制限がありそう。 トリガーされるイベントが多すぎるので制限されるのもわからないではないが、masterでしかテストできないのはなかなか不便。
-結論 この資料に記載があったが、masterかデフォルトブランチに設定がないと起動しない模様。
-memo 特定のラベルが含まれているか調べるには https://github.community/t5/GitHub-Actions/Do-something-if-a-particular-label-is-set/td-p/40712#
-コンテキストの中身を確認する 以下のようにechoを使うことで中身をダンプできる。
-name: pullrequest from issue
-on: issues
-jobs:
-display:
-runs-on: ubuntu-18.04
-steps:
-- name: display
-run: echo '${{ toJson(github.event) }}'
-if節関連 if節の中ではenvは使えない。${VAR}でもenv.VARでも駄目だった。 if節の中では文字列はシングルクォーテーションのみ。ダブルクォーテーションでは駄目。 バックスラッシュで改行することはできない。
-env関連 envの中で定義済みの変数を展開することはできないっぽい envで変数を定義するときに以下のように定義しても展開されない模様。
-VAR: 1
-VAR2: ${VAR}-2
-envを複数定義することもできないのでこれに関しては諦めるしかなさそう。
-actionのwithで環境変数を使う stepsでactionを使用する場合withで引数を渡すが、ここにenvで定義した環境変数を渡したい場合は $VAR とするのではなく、 env.VAR とする必要がある。
-git関連 git pushをrun内で実行するとうまく行かなかったのでaction使ったほうが良さそう。
-github関連 前述のpush actionも良いが、このaction を使用すると、gitへのcommit及びpull requestの作成をやってくれるのでかなり楽に実現できる。 steps内でファイルの追加、削除、更新してこのactionを実行するとそれらをまとめてcommitしてpull requestを作成してくれる。 ただし変更差分は全てcommitされるので不要なファイルを無視するか削除する必要がある。</article></div></main><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-155249985-1','auto');ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>
+とりあえず手っ取り早くできる hugo + Github Page で作り直した。</article></div></main><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-155249985-1','auto');ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>
