@@ -1,0 +1,21 @@
+<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us><head><link href=https://gmpg.org/xfn/11 rel=profile><meta charset=utf-8><meta name=generator content="Hugo 0.62.0"><meta name=viewport content="width=device-width,initial-scale=1"><title>&#183; 常にいまいち</title><meta name=description content><link type=text/css rel=stylesheet href=/css/print.css media=print><link type=text/css rel=stylesheet href=/css/poole.css><link type=text/css rel=stylesheet href=/css/syntax.css><link type=text/css rel=stylesheet href=/css/hyde.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700"><link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png><link rel="shortcut icon" href=/favicon.png></head><body><aside class=sidebar><div class="container sidebar-sticky"><div class=sidebar-about><a href=/><h1>常にいまいち</h1></a><p class=lead>blog for something</p></div><nav><ul class=sidebar-nav><li><a href=/>Home</a></li></ul></nav><p>&copy; 2020. All rights reserved.</p></div></aside><main class="content container"><div class=post><h1></h1><time datetime=0001-01-01T00:00:00Z class=post-date>Mon, Jan 1, 0001</time><h1 id=plantuml>plantumlのメモ</h1><p>plantuml使うにあたって知っていると便利なことをまとめておく。</p><h2 id=heading>マクロ</h2><pre><code>!define arrow(arg1, arg2) arg1 --&gt; arg2
+arrow(node1, node2)
+</code></pre><p>このように記述するとこれは以下のように展開されて評価される。</p><pre><code>node1 --&gt; node2
+</code></pre><p>ネットワーク図を書くときに以下のように定義しておくと整理が楽になる。</p><pre><code>!define http(a, b) a --[#magenta]--&gt; b : http
+!define grpc(a, b) a --[#blue]--&gt; b : grpc
+</code></pre><p>使用できる色の定義は<a href=https://plantuml.com/ja/color>ここ</a></p><h2 id=skinparam>skinparam</h2><p>以下のようにskinparamを設定しておくと、同じグループのノードをまとめてスタイリングできる。</p><pre><code>skinparam node {
+  backgroundColor&lt;&lt;QA&gt;&gt; PaleGreen
+  backgroundColor&lt;&lt;DEVELOP&gt;&gt; LightSkyBlue
+}
+
+cloud gcp {
+  node &quot;node1&quot; as nd1 &lt;&lt;QA&gt;&gt;
+  node &quot;node2&quot; as nd2 &lt;&lt;DEVELOP&gt;&gt; 
+}
+</code></pre><h2 id=heading-1>図の向き</h2><p><code>top to bottom direction</code> 、 <code>left to right direction</code> のように図の先頭に書いておくと、
+図の向きを上から下、左から右のように制御することができる。</p><h2 id=heading-2>レイアウト</h2><p>基本的にレイアウトは全て自動で設定されるが、見えないエッジを定義することで多少の制御は可能。あくまでも多少なのできれいにレイアウトすることは諦めたほうが良い。どうしても線が重なって見づらいときなどの緊急避難用。</p><pre><code>AA -[hidden]u-&gt; up
+AA -[hidden]d-&gt; down
+AA -[hidden]r-&gt; right
+AA -[hidden]l-&gt; left
+</code></pre><p>refs: <a href=https://forum.plantuml.net/1628/layout-of-grouping-component>https://forum.plantuml.net/1628/layout-of-grouping-component</a>
+refs: <a href=https://plantuml.com/ja/class-diagram>https://plantuml.com/ja/class-diagram</a></p></div></main><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-155249985-1','auto');ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>

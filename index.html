@@ -56,4 +56,23 @@ VAR2: ${VAR}-2
 envを複数定義することもできないのでこれに関しては諦めるしかなさそう。
 actionのwithで環境変数を使う stepsでactionを使用する場合withで引数を渡すが、ここにenvで定義した環境変数を渡したい場合は $VAR とするのではなく、 env.VAR とする必要がある。
 git関連 git pushをrun内で実行するとうまく行かなかったのでaction使ったほうが良さそう。
-github関連 前述のpush actionも良いが、このaction を使用すると、gitへのcommit及びpull requestの作成をやってくれるのでかなり楽に実現できる。 steps内でファイルの追加、削除、更新してこのactionを実行するとそれらをまとめてcommitしてpull requestを作成してくれる。 ただし変更差分は全てcommitされるので不要なファイルを無視するか削除する必要がある。</article></div></main><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-155249985-1','auto');ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>
+github関連 前述のpush actionも良いが、このaction を使用すると、gitへのcommit及びpull requestの作成をやってくれるのでかなり楽に実現できる。 steps内でファイルの追加、削除、更新してこのactionを実行するとそれらをまとめてcommitしてpull requestを作成してくれる。 ただし変更差分は全てcommitされるので不要なファイルを無視するか削除する必要がある。</article><article class=post><h1 class=post-title><a href=/posts/550549656/></a></h1><time datetime=0001-01-01T00:00:00Z class=post-date>Mon, Jan 1, 0001</time>
+plantumlのメモ plantuml使うにあたって知っていると便利なことをまとめておく。
+マクロ !define arrow(arg1, arg2) arg1 --> arg2
+arrow(node1, node2)
+このように記述するとこれは以下のように展開されて評価される。
+node1 --> node2
+ネットワーク図を書くときに以下のように定義しておくと整理が楽になる。
+!define http(a, b) a --[#magenta]--> b : http
+!define grpc(a, b) a --[#blue]--> b : grpc
+使用できる色の定義はここ
+skinparam 以下のようにskinparamを設定しておくと、同じグループのノードをまとめてスタイリングできる。
+skinparam node {
+backgroundColor&lt;&lt;QA>> PaleGreen
+backgroundColor&lt;&lt;DEVELOP>> LightSkyBlue
+}
+cloud gcp {
+node "node1" as nd1 &lt;&lt;QA>>
+node "node2" as nd2 &lt;&lt;DEVELOP>> }
+図の向き top to bottom direction 、 left to right direction のように図の先頭に書いておくと、 図の向きを上から下、左から右のように制御することができる。
+レイアウト 基本的にレイアウトは全て自動で設定されるが、見えないエッジを定義することで多少の制御は可能。あくまでも多少なのできれいにレイアウトすることは諦めたほうが良い。どうしても線が重なって見づらいときなどの緊急避難用。<div class=read-more-link><a href=/posts/550549656/>Read More…</a></div></article></div></main><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-155249985-1','auto');ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>
