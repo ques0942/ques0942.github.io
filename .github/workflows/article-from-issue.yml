@@ -34,4 +34,4 @@ jobs:
           branch: ${{ env.BRANCH }}
           base: "source"
           commit-message: "add post from issue #${{ env.ISSUE_ID}}"
-          title: "add post from issue ${{ env.ISSUE_TITLE}}"
+          title: "${{ env.ISSUE_TITLE}}"
