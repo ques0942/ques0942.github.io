@@ -26,7 +26,14 @@ jobs:
           submodules: true
       - name: dump issue
         run: |
-          echo -e "${ISSUE_BODY}" > ${MD_PATH}
+          cat << EOS > ${MD_PATH}
+          ---
+          title: "${ISSUE_TITLE}"
+          date: $(date '+%Y-%m-%dT%H:%M:%S%z')
+          draft: false
+          ---
+          ${ISSUE_BODY}
+          EOS
       - name: Create pull request
         uses: peter-evans/create-pull-request@v2
         with:
