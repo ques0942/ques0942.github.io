@@ -6,6 +6,7 @@ on:
 
 env:
   ISSUE_ID: ${{ github.event.issue.id }}
+  ISSUE_TITLE: ${{ github.event.issue.title }}
   ISSUE_BODY: ${{ github.event.issue.body }}
   BRANCH: from_issue-${{ github.event.issue.id }}
   MD_PATH: content/posts/${{ github.event.issue.id }}.md
@@ -19,23 +20,26 @@ jobs:
       || github.event.action == 'labeled')
       && contains(github.event.issue.labels.*.name, 'article')
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
         with:
           ref: source
           submodules: true
-      - name: create branch
-        run: |
-          git checkout -b ${BRANCH}
+      #- name: create branch
+      #  run: |
+      #    git checkout -b ${BRANCH}
       - name: dump issue
         run: |
           echo -e "${ISSUE_BODY}" > ${MD_PATH}
-          git config --global user.email "nari0942@gmail.com"
-          git config --global user.name "ques0942"
-          git add ${MD_PATH}
-          git commit -m "add post from issue #${ISSUE_ID}"
-      - name: Push changes
-        uses: ad-m/github-push-action@master
+          #git config --global user.email "nari0942@gmail.com"
+          #git config --global user.name "ques0942"
+          #git add ${MD_PATH}
+          #git commit -m "add post from issue #${ISSUE_ID}"
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ env.BRANCH }}
+          base: "source"
+          commit-message: "add post from issue #${ISSUE_ID}"
+          title: "add post from issue '${ISSUE_TITLE}'"
           force: true
