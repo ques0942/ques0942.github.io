@@ -19,6 +19,7 @@ jobs:
       || github.event.action == 'edited'
       || github.event.action == 'labeled')
       && contains(github.event.issue.labels.*.name, 'article')
+      && github.event.issue.assignee.login == 'ques0942'
     steps:
       - uses: actions/checkout@v2
         with:
