@@ -1,0 +1,19 @@
+<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us><head><link href=https://gmpg.org/xfn/11 rel=profile><meta charset=utf-8><meta name=generator content="Hugo 0.62.0"><meta name=viewport content="width=device-width,initial-scale=1"><title>GitHub Actionsで改行含むテキストをステップのアウトプットに指定する &#183; 常にいまいち</title><meta name=description content><link type=text/css rel=stylesheet href=/css/print.css media=print><link type=text/css rel=stylesheet href=/css/poole.css><link type=text/css rel=stylesheet href=/css/syntax.css><link type=text/css rel=stylesheet href=/css/hyde.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700"><link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png><link rel="shortcut icon" href=/favicon.png></head><body><aside class=sidebar><div class="container sidebar-sticky"><div class=sidebar-about><a href=/><h1>常にいまいち</h1></a><p class=lead>blog for something</p></div><nav><ul class=sidebar-nav><li><a href=/>Home</a></li></ul></nav><p>&copy; 2020. All rights reserved.</p></div></aside><main class="content container"><div class=post><h1>GitHub Actionsで改行含むテキストをステップのアウトプットに指定する</h1><time datetime=2020-04-29T15:00:46Z class=post-date>Wed, Apr 29, 2020</time><h1 id=heading>はじめに</h1><p>英文読める人は<a href=https://github.community/t5/GitHub-Actions/set-output-Truncates-Multiline-Strings/td-p/37870>こちら</a>をどうぞ。
+以下の内容はこの記事の内容をまとめたものとなっている。</p><h1 id=heading-1>背景</h1><p>GitHub Actionsでは以下のように設定することでstepsで実行した処理の出力を他から参照できる。</p><pre><code>steps:
+  - run: |
+      description=&quot;description here&quot;
+      echo &quot;::set-output name=description::$description&quot;
+    id: set_description
+</code></pre><p>この例では他のstepから <code>${{ steps.set_description.outputs.description }}</code> のように値を参照する。
+しかし、ここで1つ問題があり、descriptionに複数行が含まれると最初の行だけしかセットされない。</p><h1 id=heading-2>対処方法</h1><p>以下のように改行文字をエスケープすることでoutputに複数行の文字列をセット可能。</p><pre><code>description=&quot;${description//'%'/'%25'}&quot;
+description=&quot;${description//$'\n'/'%0A'}&quot;
+description=&quot;${description//$'\r'/'%0D'}&quot; 
+</code></pre><p>前述の例だとこの様になる。</p><pre><code>steps:
+  - run: |
+      description=&quot;description here&quot;
+      description=&quot;${description//'%'/'%25'}&quot;
+      description=&quot;${description//$'\n'/'%0A'}&quot;
+      description=&quot;${description//$'\r'/'%0D'}&quot; 
+      echo &quot;::set-output name=description::$description&quot;
+    id: set_description
+</code></pre><p>エスケープされたテキストのデコードは処理系で行われるため、ユーザーコードでこれを意識する必要はない。</p><h1 id=heading-3>参考</h1><p>https://github.community/t5/GitHub-Actions/set-output-Truncates-Multiline-Strings/td-p/37870</p></div></main><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-155249985-1','auto');ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>
