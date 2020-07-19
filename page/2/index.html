@@ -1,0 +1,76 @@
+<!doctype html><html lang=en-us data-theme><head><meta name=generator content="Hugo 0.62.0"><meta charset=utf-8><meta name=HandheldFriendly content="True"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=referrer content="no-referrer-when-downgrade"><title>常にいまいち - 常にいまいち</title><meta name=description content="blog for something"><link rel=icon type=image/x-icon href=https://blog.app.melvins-nest.com/favicon.ico><link rel=apple-touch-icon-precomposed href=https://blog.app.melvins-nest.com/favicon.png><link rel=stylesheet href="https://blog.app.melvins-nest.com/css/light.css?rnd=1595174429"><style>[data-theme=dark]{--font-color: #eee;--bg-color: #212121;--link-color:#599ada;--link-state-color:#ff5858;--link-state-border-color: rgba(238, 54, 54, 0.5);--thead-bg-color: #343a40;--table-border-color: lightgrey;--pre-color: #333;--pre-bg-color: #f1f1f1;--bq-color: #ccc;--hr-color: #333;--pagination-bg-color: #373737;--pagination-link-color: #b6b6b6;--post-info-color: grey;--switcher-color: #333;--switcher-bg-color: #fff}</style><link rel=stylesheet href="https://blog.app.melvins-nest.com/css/style.css?rnd=1595174429"><link rel=stylesheet href="https://blog.app.melvins-nest.com/css/my.css?rnd=1595174429"><script src="https://blog.app.melvins-nest.com/js/main.js?rnd=1595174429" type=text/javascript></script><meta property="og:title" content="常にいまいち"><meta property="og:description" content="blog for something"><meta property="og:type" content="website"><meta property="og:url" content="https://blog.app.melvins-nest.com/"><meta property="og:image" content="https://blog.app.melvins-nest.com/images/og-featured.png"><meta property="og:updated_time" content="2020-07-19T05:18:58+00:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://blog.app.melvins-nest.com/images/og-featured.png"><meta name=twitter:title content="常にいまいち"><meta name=twitter:description content="blog for something"></head><body><a class=skip-main href=#main>Skip to main content</a><div class=container><header class=common-header><h1 class=site-title><a href=/>常にいまいち</a></h1><nav></nav></header><main id=main tabindex=-1><div class=homepage-content></div><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/610142986/>goenvを2.0にしたらビルドできなくなった話</a></h1></header><div class="content post-summary">結論 この記事を読めばいい 解決策 環境変数にGOENV_DISABLE_GOPATH=1をセットする 2系を使うのを諦める 起きてたこと goenvの2系ではGOPATHがgoのバージョンごとに管理されていた。 goの環境構築をよくある形で行なうとGOPATHは ${HOME}/go になっていると思うが、 2系では $({HOME}/go/&lt;使用しているバージョン> となる。 1.14.0を使っているなら ${HOME}/go/1.14.0 になる。
+解決策としては1系を使うか GOENV_DISABLE_GOPATH=1 すればいい。</div><div class=post-info><div class=post-date>2020-04-30</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/609127584/>GitHub Actionsで改行含むテキストをステップのアウトプットに指定する</a></h1></header><div class="content post-summary">はじめに 英文読める人はこちらをどうぞ。 以下の内容はこの記事の内容をまとめたものとなっている。
+背景 GitHub Actionsでは以下のように設定することでstepsで実行した処理の出力を他から参照できる。
+steps:
+- run: |
+description="description here"
+echo "::set-output name=description::$description"
+id: set_description
+この例では他のstepから ${{ steps.set_description.outputs.description }} のように値を参照する。 しかし、ここで1つ問題があり、descriptionに複数行が含まれると最初の行だけしかセットされない。
+対処方法 以下のように改行文字をエスケープすることでoutputに複数行の文字列をセット可能。
+description="${description//'%'/'%25'}"
+description="${description//$'\n'/'%0A'}"
+description="${description//$'\r'/'%0D'}" 前述の例だとこの様になる。
+steps:
+- run: |
+description="description here"
+description="${description//'%'/'%25'}"
+description="${description//$'\n'/'%0A'}"
+description="${description//$'\r'/'%0D'}" echo "::set-output name=description::$description"
+id: set_description
+エスケープされたテキストのデコードは処理系で行われるため、ユーザーコードでこれを意識する必要はない。
+参考 https://github.community/t5/GitHub-Actions/set-output-Truncates-Multiline-Strings/td-p/37870</div><div class=post-info><div class=post-date>2020-04-29</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/598440385/>[Kubernetes]HPA使用時のreplicasの設定</a></h1></header><div class="content post-summary">DeploymentとHorizontalPodAutoscaler(HPA)の組み合わせでハマった箇所があったため、検証結果と検証用の資料をまとめた。
+検証環境 Kubernetes version: 1.14.10-gke.27 検証資料: https://github.com/ques0942/k8s-hpa-sample 結論 HPA使用時はDeploymentにreplicasを設定しないほうが良い replicasありのDeploymentに後からHPAを適用したい場合 replicas無しのDeploymentをapplyすると一時的にPodは1つになる kubectl apply edit-last-applied deployment ${target} でDeploymentからreplicasを削除できる HPAでスケールアウトした後HPAを削除してもPod数はそのまま 最後にapplyしたDeploymentがreplicasを持たない場合、kubectl editでreplicasを書き換えたとしてもその後replicas無しのDeploymentをapplyしてもPod数は1にならない 詳細は後述するがkubectl applyの差分計算ロジックによる挙動 説明 Deploymentに紐づくPodの数は replicas に設定された数字と等しくなるが replicas が未設定の場合は1になる。 一方でHorizontal Pod Autoscaler(HPA)を使用すると、Deploymentの replicas は負荷状況に合わせて自動で変更される。では以下のようなユースケースの場合どのような挙動となるだろうか?
+手順 replicas = 3としてDeploymentを適用する HPAを有効化する HPAでreplicasが10に増加した 1で適用したDeploymentを修正して適用したが、その時replicasは3のままだった 問題 この手順を踏むと4の実施後にreplicasは3に戻ってしまう。 規模が大きくなってくるとデプロイ時に縮退することになるため望ましくない挙動だろう。
+対策 最後にapplyされたDeploymentを開いてreplicasを削除する kubectl apply edit-last-applied deployment ${target} を使う 以降applyするDeploymentにはreplicasを含めない 単純にreplicasを含まないDeploymentをapplyすると、一時的にPod数は1になるため注意。</div><div class=post-info><div class=post-date>2020-04-16</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/547528307/>IssueのトリガーでGithub Actionsを動かしてみる</a></h1></header><div class="content post-summary">具体的にはIssueに特定のラベルが付いていたらそれを元にGithub Pagesに記事を追加したい。 試しに このブランチ でテストを行ったがうまく行かなかった。 ブランチ に含まれるworkflowはpushでは起動するがissuesで動かない。
+masterじゃないと動かないという制限があるかも? ということで 新規レポジトリ作ってmasterにactionsを登録したら動いた。 https://github.com/ques0942/github-actions-sample/commit/ee6bf81ebec027eda315d135aacd744def3e8ca8/checks?check_suite_id=393358382
+こちらのレポジトリでもPRの段階ではissuesからのイベントでは起動されなかった。 やはり何かしら制限がありそう。 トリガーされるイベントが多すぎるので制限されるのもわからないではないが、masterでしかテストできないのはなかなか不便。
+結論 この資料に記載があったが、masterかデフォルトブランチに設定がないと起動しない模様。
+memo runnerにインストールされているソフト こちら
+特定のラベルが含まれているか調べるには https://github.community/t5/GitHub-Actions/Do-something-if-a-particular-label-is-set/td-p/40712#
+コンテキストの中身を確認する 以下のようにechoを使うことで中身をダンプできる。
+name: pullrequest from issue on: issues jobs: display: runs-on: ubuntu-18.04 steps: - name: display run: echo '${{ toJson(github.event) }}' if節関連 if節の中ではenvは使えない。${VAR}でもenv.VARでも駄目だった。 if節の中では文字列はシングルクォーテーションのみ。ダブルクォーテーションでは駄目。 バックスラッシュで改行することはできない。
+env関連 envの中で定義済みの変数を展開することはできないっぽい envで変数を定義するときに以下のように定義しても展開されない模様。
+VAR: 1 VAR2: ${VAR}-2 envを複数定義することもできないのでこれに関しては諦めるしかなさそう。
+actionのwithで環境変数を使う stepsでactionを使用する場合withで引数を渡すが、ここにenvで定義した環境変数を渡したい場合は $VAR とするのではなく、 env.VAR とする必要がある。
+git関連 git pushをrun内で実行するとうまく行かなかったのでaction使ったほうが良さそう。
+github関連 前述のpush actionも良いが、このaction を使用すると、gitへのcommit及びpull requestの作成をやってくれるのでかなり楽に実現できる。 steps内でファイルの追加、削除、更新してこのactionを実行するとそれらをまとめてcommitしてpull requestを作成してくれる。 ただし変更差分は全てcommitされるので不要なファイルを無視するか削除する必要がある。</div><div class=post-info><div class=post-date>2020-03-30</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/550549656/>plantumlのメモ</a></h1></header><div class="content post-summary">plantuml使うにあたって知っていると便利なことをまとめておく。
+マクロ !define arrow(arg1, arg2) arg1 --> arg2
+arrow(node1, node2)
+このように記述するとこれは以下のように展開されて評価される。
+node1 --> node2
+ネットワーク図を書くときに以下のように定義しておくと整理が楽になる。
+!define http(a, b) a --[#magenta]--> b : http
+!define grpc(a, b) a --[#blue]--> b : grpc
+使用できる色の定義はここ
+skinparam 以下のようにskinparamを設定しておくと、同じグループのノードをまとめてスタイリングできる。
+skinparam node {
+backgroundColor&lt;&lt;QA>> PaleGreen
+backgroundColor&lt;&lt;DEVELOP>> LightSkyBlue
+}
+cloud gcp {
+node "node1" as nd1 &lt;&lt;QA>>
+node "node2" as nd2 &lt;&lt;DEVELOP>> }
+図の向き top to bottom direction 、 left to right direction のように図の先頭に書いておくと、 図の向きを上から下、左から右のように制御することができる。
+レイアウト 基本的にレイアウトは全て自動で設定されるが、見えないエッジを定義することで多少の制御は可能。あくまでも多少なのできれいにレイアウトすることは諦めたほうが良い。どうしても線が重なって見づらいときなどの緊急避難用。</div><div class=post-info><div class=post-date>2020-03-30</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/go-sqlmock-tips/>go-sqlmockのTips</a></h1></header><div class="content post-summary">まとめ 動作確認したのは v1.3.3 database/sqlのテストはgo-sqlmockを使うと比較的楽に行える クエリのmatcherには正規表現が使える Rowsからエラーを受け取りたい場合は、エラーが発生する行のデータを作る必要がある 不要なエラーのチェックだけならsqlmock.ExpectationsWereMetは呼び出さなくてもよい まえがき golangでSQLを使うコードを書く場合、database/sql を使うことになるが、golangの標準ライブラリだけでこれのテストを書くことは非常に辛い。 おそらくDBを実際に用意してテストするしか無いが、様々なエラーケースのテストが必要な場合それだけではテストしきれない。 この記事ではDATADOG/go-sqlmockを使ってテストした際のTipsをまとめておく。
+はじめに 基礎的な部分はREADME.mdやexamples、godocを読めば事足りるが、以下に忘れがちな内容を記載する。
+Query matcher クエリが実行されたかどうかをチェックするにあたって、呼び出された回数だけをチェックしたいケースが有る。 このような場合は、正規表現を使うことで対処できる。
+mock.ExpectQuery(".*").WillReturnRows(rows) 雑だがgomockのAny()相当のことがしたい場合はこれで実現可能である。 また、QueryMatcher自体を自分でカスタマイズすることも可能だがこちらは試していない。
+refs: https://godoc.org/github.com/DATA-DOG/go-sqlmock#QueryMatcher
+Rowsからエラーを受け取る クエリの結果エラーを受け取りたい場合、 ExpectedQuery.WillReturnRows にエラーを含む sqlmock.Rows を登録することになるが、このとき以下のようにしてしまうとエラーが発生せずにハマることになる。
+sqlmock.NewRows([]string{"ID"}).RowError(0, commonErr) パッと見は最初の行でエラーが出そうであるが、これではエラーは出ない。 多分この辺のせい。 以下のようにエラーが発生する行数になるまでAddRowを実行する必要がある。
+sqlmock.NewRows([]string{"ID"}).AddRow(1).RowError(0, commonErr) 不要な呼び出しのチェック READMEのサンプルではmock.ExpectationsWereMet を実行してmockが呼び出されているか検証しているが、 SQLが実行されなかったことを保証するだけであれば このメソッドを呼び出さずとも良い。 例えばvalidationの結果、SQLが実行されないようなケースのテストでそのようなテストが必要になる。
+ExpectXXX系のメソッドが呼ばれなかった場合に db.QueryContext のようなメソッドを実行すると、sqlmockがエラーを返すためそれを検証すれば良い。</div><div class=post-info><div class=post-date>2020-01-14</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/lost-cname/>Hugoで生成したコードをgithub pagesへデプロイするたびにカスタムドメインが初期化される</a></h1></header><div class="content post-summary">github actionsを使ってgithub pagesをデプロイしていると、デプロイのたびにカスタムドメインの設定が消えてしまっていたため原因を調べた。
+まとめ カスタムドメインを使用する場合はリポジトリルートの CNAME ファイルに指定したいドメインを記載する必要がある Hugoでは static/CNAME を作成すれば良い 起きていたこと github pagesでカスタムドメインを使用する場合、 settings タブからカスタムドメインの設定を行うが、これは公開中のブランチ( master もしくは gh-page)の CNAME ファイルを作成、更新する形で設定される。 このため、Hugoなどで生成したコードをそれらのブランチに対してデプロイするような構成にしていた場合は、生成されたコードに CNAME ファイルが含まれていないとデプロイのたびにカスタムドメインの設定が無効になってしまう。
+refs: https://help.github.com/en/github/working-with-github-pages/managing-a-custom-domain-for-your-github-pages-site#configuring-a-subdomain
+Hugoでの解決策 static/CNAME に指定したいドメインを記載する。
+refs: https://gohugo.io/hosting-and-deployment/hosting-on-github/#use-a-custom-domain</div><div class=post-info><div class=post-date>2020-01-03</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/google-analytics/>HugoへのGoogle Analyticsの埋め込み</a></h1></header><div class="content post-summary">Hugoには標準でGoogle Analyticsを組み込む機能があるため、以下の手順で設定すればOK
+まとめ config.toml に googleAnalytics としてトラッキングIDを設定 テンプレート内に以下のどちらかの手段でトラッキング用のコードを埋め込む 既存のどちらかのテンプレートを使用する _internal/google_analytics.html _internal/google_analytics_async.html .Site.GoogleAnalytics という変数を使って自力で設定する トラッキングIDの設定 config.tomlに以下の内容を追記する
+googleAnalytics = "UA-155249985-1" トラッキング用のJSの設定 使用しているテーマによっては既に登録されている可能性があるため、 googleAnalytics を設定したらまず一度サイトの挙動を確認する。 既にanalytics用のコードが埋め込まれてアクセスが発生しているようなら以降の作業は不要。
+テンプレートに以下のどちらかのテンプレートを追加する。
+{{ template "_internal/google_analytics.html" . }} {{ template "_internal/google_analytics_async.html" . }} .Site.GoogleAnalytics という変数がconfig.tomlに設定されたトラッキングIDを持っているため、これを使って自力でコードを書いても良い。</div><div class=post-info><div class=post-date>2020-01-02</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/generate-hugo-site-by-github-actions/>GitHub Actionsを使ってHugo製のサイトをデプロイする</a></h1></header><div class="content post-summary">このactionを使えば難しいことはない。 getting-startedに書いてあることをそのまま実施すればOK。 今のこのサイトでは master ブランチを公開する設定にしているため、 source ブランチに生成元のコードを作成し、それらをもとにHugoで生成したファイルを master ブランチに展開している。 そのための設定は以下のようになる。
+トリガーとなるブランチの変更 on: push: branches: - - master + - source jobs: build-deploy: デプロイ先のブランチの変更 uses: peaceiris/actions-gh-pages@v2 env: ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }} - PUBLISH_BRANCH: gh-pages + PUBLISH_BRANCH: master PUBLISH_DIR: ./public 通常のgitの運用フローとかなり異なるため、 気に入らないようであれば外部レポジトリへのデプロイ機能を使ってページの生成元コード群と、公開ページのレポジトリを分けてしまっても良いだろう。</div><div class=post-info><div class=post-date>2020-01-02</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/fix-json-api-bug/>JSON APIのバグ修正</a></h1></header><div class="content post-summary">前回の記事の内容ではコンテンツにダブルクォーテーションなどのエスケープが必要な文字が入った場合にJSONとして不適切なレスポンスになるため修正する。
+解決策 item.json.json を以下のように修正する
+{{- dict "title" .Title "date" .Date "draft" .Draft "content" .Content | jsonify -}} 問題点 元々のitem.json.jsonでは、元データを変換せずにそのままレンダリングしてしまっていることが原因のため、何らかのエスケープを行えば解決する。
+今回は以下のページを参考に、dictを作成してjsonifyで変換することにした。
+https://gohugo.io/functions/jsonify/#readout https://knooto.info/hugo-snippets/#json%E5%87%BA%E5%8A%9B https://blog.8-p.info/ja/2018/05/26/hugo-json/</div><div class=post-info><div class=post-date>2020-01-02</div><div class=post-taxonomies></div></div></article><div class=pagination><div class="left pagination-item"><a href=/>To new posts</a></div><div class="right pagination-item"><a href=/page/3/>To old posts</a></div></div></main><footer class=common-footer><div class=copyright><p>© ques0942, 2020<br>Powered by <a target=_blank rel="noopener noreferrer" href=https://gohugo.io/>Hugo</a>, theme <a target=_blank rel="noopener noreferrer" href=https://github.com/mitrichius/hugo-theme-anubis>Anubis</a>.</p></div></footer></div></body></html>
