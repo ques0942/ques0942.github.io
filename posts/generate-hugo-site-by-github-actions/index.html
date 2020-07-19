@@ -2,19 +2,19 @@
 <a href=https://github.com/peaceiris/actions-gh-pages#getting-started>getting-started</a>に書いてあることをそのまま実施すればOK。
 今のこのサイトでは <code>master</code> ブランチを公開する設定にしているため、
 <code>source</code> ブランチに生成元のコードを作成し、それらをもとにHugoで生成したファイルを <code>master</code> ブランチに展開している。
-そのための設定は以下のようになる。</p><h3 id=heading>トリガーとなるブランチの変更</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-diff data-lang=diff> on:
+そのための設定は以下のようになる。</p><h3 id=heading>トリガーとなるブランチの変更</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-diff data-lang=diff> on:
    push:
      branches:
-<span style=color:#f92672>-    - master
-</span><span style=color:#f92672></span><span style=color:#a6e22e>+    - source
-</span><span style=color:#a6e22e></span> 
+-    - master
++    - source
+ 
  jobs:
    build-deploy:
-</code></pre></div><h3 id=heading-1>デプロイ先のブランチの変更</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-diff data-lang=diff>       uses: peaceiris/actions-gh-pages@v2
+</code></pre></div><h3 id=heading-1>デプロイ先のブランチの変更</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-diff data-lang=diff>       uses: peaceiris/actions-gh-pages@v2
        env:
          ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-<span style=color:#f92672>-        PUBLISH_BRANCH: gh-pages
-</span><span style=color:#f92672></span><span style=color:#a6e22e>+        PUBLISH_BRANCH: master
-</span><span style=color:#a6e22e></span>         PUBLISH_DIR: ./public
+-        PUBLISH_BRANCH: gh-pages
++        PUBLISH_BRANCH: master
+         PUBLISH_DIR: ./public
 </code></pre></div><p>通常のgitの運用フローとかなり異なるため、
 気に入らないようであれば<a href=https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-deploy-to-external-repository>外部レポジトリへのデプロイ機能</a>を使ってページの生成元コード群と、公開ページのレポジトリを分けてしまっても良いだろう。</p></div></main><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-155249985-1','auto');ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>
