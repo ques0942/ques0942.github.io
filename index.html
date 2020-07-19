@@ -1,4 +1,45 @@
-<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us><head><link href=https://gmpg.org/xfn/11 rel=profile><meta charset=utf-8><meta name=generator content="Hugo 0.62.0"><meta name=viewport content="width=device-width,initial-scale=1"><title>常にいまいち</title><meta name=description content="blog for something"><link type=text/css rel=stylesheet href=https://blog.app.melvins-nest.com/css/print.css media=print><link type=text/css rel=stylesheet href=https://blog.app.melvins-nest.com/css/poole.css><link type=text/css rel=stylesheet href=https://blog.app.melvins-nest.com/css/syntax.css><link type=text/css rel=stylesheet href=https://blog.app.melvins-nest.com/css/hyde.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700"><link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png><link rel="shortcut icon" href=/favicon.png></head><body><aside class=sidebar><div class="container sidebar-sticky"><div class=sidebar-about><a href=https://blog.app.melvins-nest.com/><h1>常にいまいち</h1></a><p class=lead>blog for something</p></div><nav><ul class=sidebar-nav><li><a href=https://blog.app.melvins-nest.com/>Home</a></li></ul></nav><p>&copy; 2020. All rights reserved.</p></div></aside><main class="content container"><div class=posts><article class=post><h1 class=post-title><a href=https://blog.app.melvins-nest.com/posts/629278766/>Kubernetesのenvは後勝ち</a></h1><time datetime=2020-06-02T15:04:56Z class=post-date>Tue, Jun 2, 2020</time>
+<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us><head><link href=https://gmpg.org/xfn/11 rel=profile><meta charset=utf-8><meta name=generator content="Hugo 0.62.0"><meta name=viewport content="width=device-width,initial-scale=1"><title>常にいまいち</title><meta name=description content="blog for something"><link type=text/css rel=stylesheet href=https://blog.app.melvins-nest.com/css/print.css media=print><link type=text/css rel=stylesheet href=https://blog.app.melvins-nest.com/css/poole.css><link type=text/css rel=stylesheet href=https://blog.app.melvins-nest.com/css/syntax.css><link type=text/css rel=stylesheet href=https://blog.app.melvins-nest.com/css/hyde.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700"><link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png><link rel="shortcut icon" href=/favicon.png></head><body><aside class=sidebar><div class="container sidebar-sticky"><div class=sidebar-about><a href=https://blog.app.melvins-nest.com/><h1>常にいまいち</h1></a><p class=lead>blog for something</p></div><nav><ul class=sidebar-nav><li><a href=https://blog.app.melvins-nest.com/>Home</a></li></ul></nav><p>&copy; 2020. All rights reserved.</p></div></aside><main class="content container"><div class=posts><article class=post><h1 class=post-title><a href=https://blog.app.melvins-nest.com/posts/660599770/>[メモ]GitHub Actionsでterraform plan & applyする</a></h1><time datetime=2020-07-19T05:18:58Z class=post-date>Sun, Jul 19, 2020</time>
+最終的なyaml name: "terraform"
+on:
+push:
+branches:
+- master
+pull_request:
+types: [opened, synchronize, reopened]
+env:
+GOOGLE_APPLICATION_CREDENTIALS_KEY: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_KEY }}
+GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
+jobs:
+terraform:
+name: "terraform"
+runs-on: "ubuntu-latest"
+env:
+GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
+steps:
+- name: checkout
+uses: actions/checkout@v2
+- name: setup terraform
+uses: hashicorp/setup-terraform@v1
+- name: copy credentials
+run: echo ${GOOGLE_APPLICATION_CREDENTIALS_KEY} > ${GOOGLE_APPLICATION_CREDENTIALS}
+- name: init
+id: init
+run: terraform init
+- name: validate
+id: validate
+run: terraform validate -no-color
+continue-on-error: true
+- name: format check
+id: fmt
+run: terraform fmt -check -diff
+continue-on-error: true
+- name: plan
+id: plan
+run: terraform plan -no-color
+continue-on-error: true
+- name: remove old comment
+id: remove_old_comment
+uses: actions/github-script@0.<div class=read-more-link><a href=/posts/660599770/>Read More…</a></div></article><article class=post><h1 class=post-title><a href=https://blog.app.melvins-nest.com/posts/629278766/>Kubernetesのenvは後勝ち</a></h1><time datetime=2020-06-02T15:04:56Z class=post-date>Tue, Jun 2, 2020</time>
 例えば以下のようにconfigmapとenvを併用するケース。
 envFrom:
 - configMapRef:

@@ -1,0 +1,199 @@
+<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us><head><link href=https://gmpg.org/xfn/11 rel=profile><meta charset=utf-8><meta name=generator content="Hugo 0.62.0"><meta name=viewport content="width=device-width,initial-scale=1"><title>[メモ]GitHub Actionsでterraform plan & applyする &#183; 常にいまいち</title><meta name=description content><link type=text/css rel=stylesheet href=https://blog.app.melvins-nest.com/css/print.css media=print><link type=text/css rel=stylesheet href=https://blog.app.melvins-nest.com/css/poole.css><link type=text/css rel=stylesheet href=https://blog.app.melvins-nest.com/css/syntax.css><link type=text/css rel=stylesheet href=https://blog.app.melvins-nest.com/css/hyde.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700"><link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png><link rel="shortcut icon" href=/favicon.png></head><body><aside class=sidebar><div class="container sidebar-sticky"><div class=sidebar-about><a href=https://blog.app.melvins-nest.com/><h1>常にいまいち</h1></a><p class=lead>blog for something</p></div><nav><ul class=sidebar-nav><li><a href=https://blog.app.melvins-nest.com/>Home</a></li></ul></nav><p>&copy; 2020. All rights reserved.</p></div></aside><main class="content container"><div class=post><h1>[メモ]GitHub Actionsでterraform plan & applyする</h1><time datetime=2020-07-19T05:18:58Z class=post-date>Sun, Jul 19, 2020</time><h1 id=yaml>最終的なyaml</h1><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>name: <span style=color:#e6db74>&#34;terraform&#34;</span>
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  GOOGLE_APPLICATION_CREDENTIALS_KEY: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_KEY }}
+  GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
+
+jobs:
+  terraform:
+    name: <span style=color:#e6db74>&#34;terraform&#34;</span>
+    runs-on: <span style=color:#e6db74>&#34;ubuntu-latest&#34;</span>
+    env:
+      GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: setup terraform
+      uses: hashicorp/setup-terraform@v1
+    - name: copy credentials
+      run: echo ${GOOGLE_APPLICATION_CREDENTIALS_KEY} &gt; ${GOOGLE_APPLICATION_CREDENTIALS}
+    - name: init
+      id: init
+      run: terraform init
+    - name: validate
+      id: validate
+      run: terraform validate -no-color
+      continue-on-error: <span style=color:#66d9ef>true</span>
+    - name: format check
+      id: fmt
+      run: terraform fmt -check -diff
+      continue-on-error: <span style=color:#66d9ef>true</span>
+    - name: plan
+      id: plan
+      run: terraform plan -no-color
+      continue-on-error: <span style=color:#66d9ef>true</span>
+    - name: remove old comment
+      id: remove_old_comment
+      uses: actions/github-script@<span style=color:#ae81ff>0.9</span><span style=color:#ae81ff>.0</span>
+      if: github.event_name == <span style=color:#e6db74>&#39;pull_request&#39;</span>
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: <span style=color:#e6db74>|
+</span><span style=color:#e6db74>         </span><span style=color:#e6db74> </span><span style=color:#e6db74>opts = github.issues.listComments.endpoint.merge({</span>
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            per_page: <span style=color:#ae81ff>100</span>,
+          })
+          const comments = await github.paginate(opts)
+          for(const comment of comments) {
+            if (comment.user.login === <span style=color:#e6db74>&#34;github-actions[bot]&#34;</span> <span style=color:#75715e>&amp;&amp;</span> comment.body.startsWith(<span style=color:#e6db74>&#34;#### Terraform Format and Style&#34;</span>)) {
+              github.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment.id,
+              })
+            }
+          }
+    - name: show plan
+      uses: actions/github-script@<span style=color:#ae81ff>0.9</span><span style=color:#ae81ff>.0</span>
+      if: github.event_name == <span style=color:#e6db74>&#39;pull_request&#39;</span>
+      env:
+        PLAN: <span style=color:#e6db74>&#34;terraform\n${{ steps.plan.outputs.stdout }}&#34;</span>
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: <span style=color:#e6db74>|
+</span><span style=color:#e6db74>         </span><span style=color:#e6db74> </span><span style=color:#e6db74>const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`</span>
+          <span style=color:#75715e>#### Terraform Initialization: \`${{ steps.init.outcome }}\`</span>
+          <span style=color:#75715e>#### Terraform Validation: ${{ steps.validate.outputs.stdout }}</span>
+          <span style=color:#75715e>#### Terraform Format: ${{ steps.fmt.outputs.stdout }} </span>
+          <span style=color:#75715e>#### Terraform Plan: \`${{ steps.plan.outcome }}\`</span>
+          &lt;details&gt;&lt;summary&gt;Show Plan&lt;/summary<span style=color:#e6db74>&gt;
+</span><span style=color:#e6db74>         </span><span style=color:#e6db74> </span><span style=color:#e6db74>\`\`\`${process.env.PLAN}\`\`\`</span>
+          &lt;/details<span style=color:#e6db74>&gt;
+</span><span style=color:#e6db74>         </span><span style=color:#e6db74> </span><span style=color:#e6db74>*Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`,  Workflow: \`${{ github.workflow }}\`*`;</span>
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
+    - name: check on failure
+      if: steps.validate.outcome == <span style=color:#e6db74>&#39;failure&#39;</span> || steps.fmt.outcome == <span style=color:#e6db74>&#39;failure&#39;</span> || steps.plan.outcome == <span style=color:#e6db74>&#39;failure&#39;</span>
+      run: <span style=color:#e6db74>|
+</span><span style=color:#e6db74>       </span><span style=color:#e6db74> </span><span style=color:#e6db74>echo ${{ steps.validate.outputs.status }} </span>
+        echo ${{ steps.fmt.outputs.status }}
+        echo ${{ steps.plan.outputs.status }}
+        exit <span style=color:#ae81ff>1</span>
+    - name: apply
+      if: github.ref == <span style=color:#e6db74>&#39;refs/heads/master&#39;</span> <span style=color:#75715e>&amp;&amp;</span> github.event_name == <span style=color:#e6db74>&#39;push&#39;</span>
+      run: terraform apply -auto-approve
+</code></pre></div><h1 id=heading>説明</h1><h2 id=action>Actionを発火させるイベント</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+</code></pre></div><p>masterにマージされた時にterraform applyしたいのでmasterに対するpushイベントを、
+PRが作成、更新されたterraform planしたいのでpull_requestのopen/synchronize/reopenedイベントを対象にする(実際のところ<a href=https://docs.github.com/en/actions/reference/events-that-trigger-workflows#pull_request>pull_requestとだけ指定すればこの3つを対象にしたことになる</a>)
+pull_requestのsynchronizeは<a href=https://github.community/t/what-is-a-pull-request-synchronize-event/14784>PRのソースブランチが更新されたときに発行される</a>。</p><h2 id=credential>credential</h2><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>env:
+  GOOGLE_APPLICATION_CREDENTIALS_KEY: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_KEY }}
+  GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
+</code></pre></div><p>Secretsに予めservice accountのjsonを登録しておく。
+<code>GOOGLE_APPLICATION_CREDENTIALS</code> を定義しておくとterraformがそれを読み取ってくれるので今回はこの方法でcredentialを渡すことにした。</p><h2 id=workflow>workflowの説明</h2><h3 id=checkout>checkoutまで</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>jobs:
+  terraform:
+    name: <span style=color:#e6db74>&#34;terraform&#34;</span>
+    runs-on: <span style=color:#e6db74>&#34;ubuntu-latest&#34;</span>
+    env:
+      GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+</code></pre></div><p>ここまではテンプレ</p><h3 id=terraform>terraformの導入</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>    - name: setup terraform
+      uses: hashicorp/setup-terraform@v1
+</code></pre></div><p><a href=https://github.com/hashicorp/setup-terraform>Hashicorp公式のaction</a>があるのでこれを使う。
+terraformのversion指定などもできるので必要なら設定する。READMEに使い方は大体書いてある。</p><h3 id=credential-1>credentialの書き出し</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>    - name: copy credentials
+      run: echo ${GOOGLE_APPLICATION_CREDENTIALS_KEY} &gt; ${GOOGLE_APPLICATION_CREDENTIALS}
+</code></pre></div><p><code>GOOGLE_APPLICATION_CREDENTIALS</code> で指定したパスにservice accountキーを書き出しておく。</p><h3 id=terraformplan>terraformの各種チェックとplanの実行</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>    - name: init
+      id: init
+      run: terraform init
+    - name: validate
+      id: validate
+      run: terraform validate -no-color
+      continue-on-error: <span style=color:#66d9ef>true</span>
+    - name: format check
+      id: fmt
+      run: terraform fmt -check -diff
+      continue-on-error: <span style=color:#66d9ef>true</span>
+    - name: plan
+      id: plan
+      run: terraform plan -no-color
+      continue-on-error: <span style=color:#66d9ef>true</span>
+</code></pre></div><p>init/validate/fmt/planをそれぞれ実行して結果を収集する。
+validate/planで <code>-no-color</code> をつけ忘れると出力にカラーコードが入り込むので注意。</p><p><code>continue-on-error: true</code> としているのは各種チェックの結果をPRにコメントとして書き出す処理を行うため。
+この記述を省くといずれかのチェックで失敗するとそこで中断する。
+コメントを書き出す必要がなければそうしてしまえば良い。</p><h3 id=heading-1>古いコメントの削除</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>    - name: remove old comment
+      id: remove_old_comment
+      uses: actions/github-script@<span style=color:#ae81ff>0.9</span><span style=color:#ae81ff>.0</span>
+      if: github.event_name == <span style=color:#e6db74>&#39;pull_request&#39;</span>
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: <span style=color:#e6db74>|
+</span><span style=color:#e6db74>         </span><span style=color:#e6db74> </span><span style=color:#e6db74>opts = github.issues.listComments.endpoint.merge({</span>
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            per_page: <span style=color:#ae81ff>100</span>,
+          })
+          const comments = await github.paginate(opts)
+          for(const comment of comments) {
+            if (comment.user.login === <span style=color:#e6db74>&#34;github-actions[bot]&#34;</span> <span style=color:#75715e>&amp;&amp;</span> comment.body.startsWith(<span style=color:#e6db74>&#34;#### Terraform Format and Style&#34;</span>)) {
+              github.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment.id,
+              })
+            }
+          }
+</code></pre></div><p>このactionを複数回実行すると都度コメントが増えてしまうので、
+<a href=https://github.com/actions/github-script>github-script</a>を用いて古いコメントを削除する。
+通常そんなにたくさんコメントが付くことは無いと思うが、
+念の為ページネーションして全部のコメントを取り出して、github actionsからつけられたコメントかつ本文がこのactionで付与したものと類似するものを削除している。</p><p>github-scriptの使い方はこのあたりを参考にした。</p><ul><li><a href=https://github.com/actions/github-script#welcome-a-first-time-contributor>https://github.com/actions/github-script#welcome-a-first-time-contributor</a></li><li><a href=https://octokit.github.io/rest.js/>https://octokit.github.io/rest.js/</a></li><li><a href=https://maku.blog/p/7r6gr3d/>https://maku.blog/p/7r6gr3d/</a></li></ul><h3 id=plan>チェック、planの結果をコメントとして書き出す</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>    - name: show plan
+      uses: actions/github-script@<span style=color:#ae81ff>0.9</span><span style=color:#ae81ff>.0</span>
+      if: github.event_name == <span style=color:#e6db74>&#39;pull_request&#39;</span>
+      env:
+        PLAN: <span style=color:#e6db74>&#34;terraform\n${{ steps.plan.outputs.stdout }}&#34;</span>
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: <span style=color:#e6db74>|
+</span><span style=color:#e6db74>         </span><span style=color:#e6db74> </span><span style=color:#e6db74>const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`</span>
+          <span style=color:#75715e>#### Terraform Initialization: \`${{ steps.init.outcome }}\`</span>
+          <span style=color:#75715e>#### Terraform Validation: ${{ steps.validate.outputs.stdout }}</span>
+          <span style=color:#75715e>#### Terraform Format: ${{ steps.fmt.outputs.stdout }} </span>
+          <span style=color:#75715e>#### Terraform Plan: \`${{ steps.plan.outcome }}\`</span>
+          &lt;details&gt;&lt;summary&gt;Show Plan&lt;/summary<span style=color:#e6db74>&gt;
+</span><span style=color:#e6db74>         </span><span style=color:#e6db74> </span><span style=color:#e6db74>\`\`\`${process.env.PLAN}\`\`\`</span>
+          &lt;/details<span style=color:#e6db74>&gt;
+</span><span style=color:#e6db74>         </span><span style=color:#e6db74> </span><span style=color:#e6db74>*Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`,  Workflow: \`${{ github.workflow }}\`*`;</span>
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
+</code></pre></div><p>適当なフォーマットでPRにコメントとして結果を書き出す。
+当然ながら書き出す先のPRが無いと動かないので、<code>if</code>でevent_nameをチェックしてpull_requestだけを対象にする。</p><h3 id=plan-1>チェック、planに不備がある場合はエラー終了させる</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>- name: check on failure
+      if: steps.validate.outcome == <span style=color:#e6db74>&#39;failure&#39;</span> || steps.fmt.outcome == <span style=color:#e6db74>&#39;failure&#39;</span> || steps.plan.outcome == <span style=color:#e6db74>&#39;failure&#39;</span>
+      run: exit <span style=color:#ae81ff>1</span>
+</code></pre></div><p>不備がある場合はマージできないようにしたいので、終了ステータスをそれぞれチェックしてどれか一つでも失敗していたらエラー終了させる。</p><h3 id=terraform-apply>terraform applyする</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>    - name: apply
+      if: github.ref == <span style=color:#e6db74>&#39;refs/heads/master&#39;</span> <span style=color:#75715e>&amp;&amp;</span> github.event_name == <span style=color:#e6db74>&#39;push&#39;</span>
+      run: terraform apply -auto-approve
+</code></pre></div><p>無事にmasterにマージされたらapplyして変更内容をインフラに反映させる。
+実行確認が出ないように <code>-auto-approve</code> をつけて実行する。</p></div></main><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-155249985-1','auto');ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>
