@@ -1,61 +1,26 @@
-<!doctype html><html lang=en-us data-theme><head><meta name=generator content="Hugo 0.62.0"><meta charset=utf-8><meta name=HandheldFriendly content="True"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=referrer content="no-referrer-when-downgrade"><title>常にいまいち - 常にいまいち</title><meta name=description content="blog for something"><link rel=icon type=image/x-icon href=https://blog.app.melvins-nest.com/favicon.ico><link rel=apple-touch-icon-precomposed href=https://blog.app.melvins-nest.com/favicon.png><link rel=stylesheet href="https://blog.app.melvins-nest.com/css/light.css?rnd=1598277620"><style>[data-theme=dark]{--font-color: #eee;--bg-color: #212121;--link-color:#599ada;--link-state-color:#ff5858;--link-state-border-color: rgba(238, 54, 54, 0.5);--thead-bg-color: #343a40;--table-border-color: lightgrey;--pre-color: #333;--pre-bg-color: #f1f1f1;--bq-color: #ccc;--hr-color: #333;--pagination-bg-color: #373737;--pagination-link-color: #b6b6b6;--post-info-color: grey;--switcher-color: #333;--switcher-bg-color: #fff}</style><link rel=stylesheet href="https://blog.app.melvins-nest.com/css/style.css?rnd=1598277620"><meta property="og:title" content="常にいまいち"><meta property="og:description" content="blog for something"><meta property="og:type" content="website"><meta property="og:url" content="https://blog.app.melvins-nest.com/"><meta property="og:updated_time" content="2020-08-24T13:54:40+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="常にいまいち"><meta name=twitter:description content="blog for something"></head><body><a class=skip-main href=#main>Skip to main content</a><div class=container><header class=common-header><h1 class=site-title><a href=/>常にいまいち</a></h1><nav></nav></header><main id=main tabindex=-1><div class=homepage-content></div><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/684683943/>[BigQuery] 抽出対象から一部のカラムを除く</a></h1></header><div class="content post-summary">select * from `dataset`;
-みたいなクエリを実行する時に
-select * except(`column1`) from `dataset`;
-とするとcolumn1が抽出結果から除外される。 JOINした際に同名カラムを除外するときなどに役に立つ。
-参照 https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax?hl=ja#except</div><div class=post-info><div class=post-date>2020-08-24</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/661465923/>[メモ]BigQueryをDataGripから使用する</a></h1></header><div class="content post-summary"><h1 id=heading>概要</h1><p>JDBCDriverを使用してDataGrip経由でBigQueryにクエリを投げられるようにする。</p></div><div class=post-info><div class=post-date>2020-07-20</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/660599770/>[メモ]GitHub Actionsでterraform plan & applyする</a></h1></header><div class="content post-summary"><p>Github Actionsを使ってPRベースでterraform planを検証し、masterマージされた定義をterraform applyでインフラに適用する。</p></div><div class=post-info><div class=post-date>2020-07-19</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/629278766/>Kubernetesのenvは後勝ち</a></h1></header><div class="content post-summary">例えば以下のようにconfigmapとenvを併用するケース。
-envFrom:
-- configMapRef:
-name: test-config
-env: -name: TEST
-value: "OVERRIDE"
-この順で書くとtest-configに TEST: DEFAULT などと定義されていてもTEST: OVERRIDE となる。 逆順で書けばtest-configに定義された値が優先される。 基本的には同一キーを定義しないほうが混乱が少なくてよいが、覚えておくと緊急時に一時的に上書きして対処できたりする。
+<!doctype html><html lang=en-us data-theme><head><meta name=generator content="Hugo 0.74.3"><meta charset=utf-8><meta name=HandheldFriendly content="True"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=referrer content="no-referrer-when-downgrade"><title>常にいまいち - 常にいまいち</title><meta name=description content="blog for something"><link rel=icon type=image/x-icon href=https://blog.app.melvins-nest.com/favicon.ico><link rel=apple-touch-icon-precomposed href=https://blog.app.melvins-nest.com/favicon.png><link rel=stylesheet href="https://blog.app.melvins-nest.com/css/light.css?rnd=1598331127"><style>[data-theme=dark]{--font-color: #eee;--bg-color: #212121;--link-color:#599ada;--link-state-color:#ff5858;--link-state-border-color: rgba(238, 54, 54, 0.5);--thead-bg-color: #343a40;--table-border-color: lightgrey;--pre-color: #333;--pre-bg-color: #f1f1f1;--bq-color: #ccc;--hr-color: #333;--pagination-bg-color: #373737;--pagination-link-color: #b6b6b6;--post-info-color: grey;--switcher-color: #333;--switcher-bg-color: #fff}</style><link rel=stylesheet href="https://blog.app.melvins-nest.com/css/style.css?rnd=1598331127"><meta property="og:title" content="常にいまいち"><meta property="og:description" content="blog for something"><meta property="og:type" content="website"><meta property="og:url" content="https://blog.app.melvins-nest.com/"><meta property="og:updated_time" content="2020-08-24T13:54:40+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="常にいまいち"><meta name=twitter:description content="blog for something"></head><body><a class=skip-main href=#main>Skip to main content</a><div class=container><header class=common-header><h1 class=site-title><a href=/>常にいまいち</a></h1><nav></nav></header><main id=main tabindex=-1><div class=homepage-content></div><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/684683943/>[BigQuery] 抽出対象から一部のカラムを除く</a></h1></header><div class="content post-summary">select * from `dataset`; みたいなクエリを実行する時に
+select * except(`column1`) from `dataset`; とするとcolumn1が抽出結果から除外される。 JOINした際に同名カラムを除外するときなどに役に立つ。
+参照 https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax?hl=ja#except</div><div class=post-info><div class=post-date>2020-08-24</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/661465923/>[メモ]BigQueryをDataGripから使用する</a></h1></header><div class="content post-summary"><h1 id=概要>概要</h1><p>JDBCDriverを使用してDataGrip経由でBigQueryにクエリを投げられるようにする。</p></div><div class=post-info><div class=post-date>2020-07-20</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/660599770/>[メモ]GitHub Actionsでterraform plan & applyする</a></h1></header><div class="content post-summary"><p>Github Actionsを使ってPRベースでterraform planを検証し、masterマージされた定義をterraform applyでインフラに適用する。</p></div><div class=post-info><div class=post-date>2020-07-19</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/629278766/>Kubernetesのenvは後勝ち</a></h1></header><div class="content post-summary">例えば以下のようにconfigmapとenvを併用するケース。
+envFrom: - configMapRef: name: test-config env: -name: TEST value: "OVERRIDE" この順で書くとtest-configに TEST: DEFAULT などと定義されていてもTEST: OVERRIDE となる。 逆順で書けばtest-configに定義された値が優先される。 基本的には同一キーを定義しないほうが混乱が少なくてよいが、覚えておくと緊急時に一時的に上書きして対処できたりする。
 参考 https://stackoverflow.com/questions/54398272/override-env-values-defined-in-container-spec</div><div class=post-info><div class=post-date>2020-06-02</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/629182853/>Go関連のTips</a></h1></header><div class="content post-summary">全部go1.14.3で検証したもの。
 部分文字列の切り出し stringsパッケージにも部分文字列の切り出しを行うメソッドはないので、slice操作と同じようにして行う。
 このとき注意がいるのが、マルチバイト文字の取り扱い。 単純に以下のようにすると3文字分ではなく3バイト分になる。
-s := "あいうえお"
-fmt.Println(s[:3])
-https://play.golang.org/p/ZHXH9FEneRJ
+s := "あいうえお" fmt.Println(s[:3]) https://play.golang.org/p/ZHXH9FEneRJ
 3文字分取り出したい場合は rune を使用する。
 s := "あいうえお"
 fmt.Println(string([]rune(s)[:3]))
 https://play.golang.org/p/U1rbOpQ8H3c
 参考 https://qiita.com/seihmd/items/4a878e7fa340d7963fee nilへの型アサーション 型付きnilなら型アサーションができる。
-if _, ok := (interface{})(nil).(int); !ok {
-fmt.Println("no") // これが表示される
-}
-そのため、nilが返ってくる可能性のある関数の返り値に直接型アサーションを実行できる。 例えばこんな感じ。
-if _, ok := New().(MyInterface); !ok {
-fmt.Println("nil")
-}
-https://play.golang.org/p/ExqB3G-1rN_-</div><div class=post-info><div class=post-date>2020-06-02</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/628325048/>GCSへのアクセス制御(特定ドメインのアカウントだけにアクセスを許可する)</a></h1></header><div class="content post-summary">やりたいこと XXX@gmail.comだけにアクセス許可 みたいな感じで特定のドメインのアカウントだけに限定して静的サイトを公開したい。
+if _, ok := (interface{})(nil).(int); !ok { fmt.Println("no") // これが表示される } そのため、nilが返ってくる可能性のある関数の返り値に直接型アサーションを実行できる。 例えばこんな感じ。
+if _, ok := New().(MyInterface); !ok { fmt.Println("nil") } https://play.golang.org/p/ExqB3G-1rN_-</div><div class=post-info><div class=post-date>2020-06-02</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/628325048/>GCSへのアクセス制御(特定ドメインのアカウントだけにアクセスを許可する)</a></h1></header><div class="content post-summary">やりたいこと XXX@gmail.comだけにアクセス許可 みたいな感じで特定のドメインのアカウントだけに限定して静的サイトを公開したい。
 方法 consoleから変更する場合 GCSのブラウザを開く 対象のBucketの バケットオーバーフローメニュー(右端の縦に...が並んでいるボタン) をクリックする バケットの権限を編集 を選ぶ メンバーを追加 を選ぶ 新しいメンバーのフォームに許可したいドメイン(gmail.com など)を入力 適切なロールを選択して保存する。 問題 この方法でファイルを提供することはできるが、ファイルをディレクトリまるごとアップして許可した人だけにサイト公開しようとすると1点問題が発生した。 ファイルをホストするドメインがファイルごとに異なっているので相対パスを指定しても他のファイルを参照することができなかった。 GCSのブラウザで確認できる Link URL はhttps://storage.cloud.google.com/&lt;bucket>/&lt;file_name> となっているが、これにアクセスすると実際にファイルを配信している別のURLにリダイレクトされる。 このときリダイレクト先のURLのドメインが必ずしも同じドメインにならないようなので、そのまま単純に相対パスの状態でhtml/js/css/imgなどをアップするとリンク先が参照できなくて破綻する。
 どうするかというと単純な話でhrefなどの参照先を絶対パスで指定すれば良い。
 今回アップしようとしたファイル群は create-react-app で作成したので、.env ファイルに PUBLIC_URL=https://storage.cloud.google.com/&lt;bucket>/&lt;必要ならディレクトリ と記述して解決できた。
 参考 https://cloud.google.com/storage/docs/access-control/using-iam-permissions?hl=ja#conditions-add https://stackoverflow.com/questions/52761957/attaching-absolute-path-to-css-js-files-while-building-the-react-app/52840500#52840500</div><div class=post-info><div class=post-date>2020-06-01</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/625884060/>(Python)classmethodの返り値の型として自身の型を使う</a></h1></header><div class="content post-summary">検証環境 python version: 3.8.2
-説明 class MyType:
-@classmethod
-def from_name(cls, name: str) -> MyType:
-t = cls()
-t.__name = name
-return t
-のようなコードを書くと、python3.8.2では -> MyType の部分がUnresolved referenceになってしまう。 これを回避するには以下のようにする。
-from __future__ import annotations # この行を追加する
-class MyType:
-@classmethod
-def from_name(cls, name: str) -> MyType:
-t = cls()
-t.__name = name
-return t
-python 3.7からfuture behaviorとして追加されているので、それ以降ならこれだけで解決可能。
-参考 https://stackoverflow.com/questions/39205527/can-you-annotate-return-type-when-value-is-instance-of-cls/58709233#58709233 https://www.python.org/dev/peps/pep-0563/#enabling-the-future-behavior-in-python-3-7</div><div class=post-info><div class=post-date>2020-05-27</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/624782942/>(暫定対応)ReactのCSSPropertyで型の不一致が発生する</a></h1></header><div class="content post-summary">問題 const scoreStyle = { margin: 50, textAlign: "left" };
-...
-&lt;div style={ scoreStyle } >
-...
-こういうコードを書いたところ
-Type '{ margin: number; textAlign: string; }' is not assignable to type 'CSSProperties'.
-Types of property 'textAlign' are incompatible.
-Type 'string' is not assignable to type '"left" | "-moz-initial" | "inherit" | "initial" | "revert" | "unset" | "center" | "end" | "justify" | "match-parent" | "right" | "start" | undefined'. TS2322
-こんな感じで型が一致しない。</div><div class=post-info><div class=post-date>2020-05-26</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/615770069/>「HHKB Professional HYBRID Type-S 日本語配列／墨」を使ってみた感想</a></h1></header><div class="content post-summary">HHKB初心者の感想。 もともとはMajestouch使いで、Macの外付けキーボードとしてKarabinar-Elementsでmacのデフォルト配置に近い配置にして使っている。
+説明 class MyType: @classmethod def from_name(cls, name: str) -> MyType: t = cls() t.__name = name return t のようなコードを書くと、python3.8.2では -> MyType の部分がUnresolved referenceになってしまう。 これを回避するには以下のようにする。
+from __future__ import annotations # この行を追加する class MyType: @classmethod def from_name(cls, name: str) -> MyType: t = cls() t.__name = name return t python 3.7からfuture behaviorとして追加されているので、それ以降ならこれだけで解決可能。
+参考 https://stackoverflow.com/questions/39205527/can-you-annotate-return-type-when-value-is-instance-of-cls/58709233#58709233 https://www.python.org/dev/peps/pep-0563/#enabling-the-future-behavior-in-python-3-7</div><div class=post-info><div class=post-date>2020-05-27</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/624782942/>(暫定対応)ReactのCSSPropertyで型の不一致が発生する</a></h1></header><div class="content post-summary">問題 const scoreStyle = { margin: 50, textAlign: "left" }; ... &lt;div style={ scoreStyle } > ... こういうコードを書いたところ
+Type '{ margin: number; textAlign: string; }' is not assignable to type 'CSSProperties'. Types of property 'textAlign' are incompatible. Type 'string' is not assignable to type '"left" | "-moz-initial" | "inherit" | "initial" | "revert" | "unset" | "center" | "end" | "justify" | "match-parent" | "right" | "start" | undefined'. TS2322 こんな感じで型が一致しない。</div><div class=post-info><div class=post-date>2020-05-26</div><div class=post-taxonomies></div></div></article><article class=post-list><header class=post-header><h1 class=post-title><a href=/posts/615770069/>「HHKB Professional HYBRID Type-S 日本語配列／墨」を使ってみた感想</a></h1></header><div class="content post-summary">HHKB初心者の感想。 もともとはMajestouch使いで、Macの外付けキーボードとしてKarabinar-Elementsでmacのデフォルト配置に近い配置にして使っている。
 箱とか 外箱
 箱開けたところ
 良いところ タイプするとコトコト感があって気持ちいい それなりに軽いので持ち出しやすい Majestouchより疲れにくくなった気はする(そこまで変わらない) Bluetoothなのでコードを気にしなくていい Bluetoothに関してはMajestouchのMINILAで良いのでは説があるが、今回はHHKBを試してみたかったのでこの機種を選択した。 コロナでしっかり試せていないが、iPadとかと一緒に外に持ち出して使えるならだいぶ大きなメリット。
