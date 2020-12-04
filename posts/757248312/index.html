@@ -1,0 +1,79 @@
+<!doctype html><html lang=en-us data-theme><head><meta charset=utf-8><meta name=HandheldFriendly content="True"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=referrer content="no-referrer-when-downgrade"><title>[Golang] deferでerrorを参照しようとしてハマった - 常にいまいち</title><meta name=description content="blog for something"><link rel=icon type=image/x-icon href=https://blog.app.melvins-nest.com/favicon.ico><link rel=apple-touch-icon-precomposed href=https://blog.app.melvins-nest.com/favicon.png><link rel=stylesheet href="https://blog.app.melvins-nest.com/css/light.css?rnd=1607100963"><style>[data-theme=dark]{--font-color: #eee;--bg-color: #212121;--link-color:#599ada;--link-state-color:#ff5858;--link-state-border-color: rgba(238, 54, 54, 0.5);--thead-bg-color: #343a40;--table-border-color: lightgrey;--pre-color: #333;--pre-bg-color: #f1f1f1;--bq-color: #ccc;--hr-color: #333;--pagination-bg-color: #373737;--pagination-link-color: #b6b6b6;--post-info-color: grey;--switcher-color: #333;--switcher-bg-color: #fff}</style><link rel=stylesheet href="https://blog.app.melvins-nest.com/css/style.css?rnd=1607100963"><meta property="og:title" content="[Golang] deferでerrorを参照しようとしてハマった"><meta property="og:description" content="概要
+関数が返したerrorをdeferを使ってキャプチャしようとしたらハマったのでメモ。
+起こったこと
+関数でエラーが発生したらそれをログに残そうとしていたとき、以下のようなコードを書いてしまった。
+func Execute() error {
+	var err error
+	defer func() { SendErrIfExists(err) }()
+
+	err = DoSomething()
+	if !errors.Is(err, ErrCanIgnore) {
+		return err
+	}
+
+	return nil // ここに来たらSendErrIfExistsの引数はnilになって欲しい
+}
+このコードでDoSomethingを実行すると、エラーログにはしっかりとErrCanIgnoreが記録されてしまった。
+原因は以下の2点。
+
+deferで実行される関数がerr変数を含むクロージャとなっている
+クロージャが参照しているerr変数に入った値がErrCanIgnoreのまま"><meta property="og:type" content="article"><meta property="og:url" content="https://blog.app.melvins-nest.com/posts/757248312/"><meta property="article:published_time" content="2020-12-04T16:53:41+00:00"><meta property="article:modified_time" content="2020-12-04T16:53:41+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="[Golang] deferでerrorを参照しようとしてハマった"><meta name=twitter:description content="概要
+関数が返したerrorをdeferを使ってキャプチャしようとしたらハマったのでメモ。
+起こったこと
+関数でエラーが発生したらそれをログに残そうとしていたとき、以下のようなコードを書いてしまった。
+func Execute() error {
+	var err error
+	defer func() { SendErrIfExists(err) }()
+
+	err = DoSomething()
+	if !errors.Is(err, ErrCanIgnore) {
+		return err
+	}
+
+	return nil // ここに来たらSendErrIfExistsの引数はnilになって欲しい
+}
+このコードでDoSomethingを実行すると、エラーログにはしっかりとErrCanIgnoreが記録されてしまった。
+原因は以下の2点。
+
+deferで実行される関数がerr変数を含むクロージャとなっている
+クロージャが参照しているerr変数に入った値がErrCanIgnoreのまま"></head><body><a class=skip-main href=#main>Skip to main content</a><div class=container><header class=common-header><h1 class=site-title><a href=/>常にいまいち</a></h1><nav></nav></header><main id=main tabindex=-1><article class=post><header class=post-header><h1 class=post-title>[Golang] deferでerrorを参照しようとしてハマった</h1></header><div class=content><h1 id=概要>概要</h1><p>関数が返したerrorをdeferを使ってキャプチャしようとしたらハマったのでメモ。</p><h2 id=起こったこと>起こったこと</h2><p>関数でエラーが発生したらそれをログに残そうとしていたとき、<a href=https://play.golang.org/p/nhWOgvVPdRW>以下のようなコード</a>を書いてしまった。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=color:red>func</span> <span style=color:#ff0>Execute</span>() <span style=color:violet>error</span> {
+	<span style=color:red>var</span> err <span style=color:violet>error</span>
+	<span style=color:red>defer</span> <span style=color:red>func</span>() { <span style=color:#ff0>SendErrIfExists</span>(err) }()
+
+	err = <span style=color:#ff0>DoSomething</span>()
+	<span style=color:red>if</span> !errors.<span style=color:#ff0>Is</span>(err, ErrCanIgnore) {
+		<span style=color:red>return</span> err
+	}
+
+	<span style=color:red>return</span> <span style=color:red>nil</span> <span style=color:#0f0>// ここに来たらSendErrIfExistsの引数はnilになって欲しい
+</span><span style=color:#0f0></span>}
+</code></pre></div><p>このコードでDoSomethingを実行すると、エラーログにはしっかりとErrCanIgnoreが記録されてしまった。
+原因は以下の2点。</p><ul><li>deferで実行される関数がerr変数を含むクロージャとなっている</li><li>クロージャが参照しているerr変数に入った値がErrCanIgnoreのまま</li></ul><p>修正するとすれば以下のようになる。</p><h3 id=errをnilで上書きする>errをnilで上書きする</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=color:red>func</span> <span style=color:#ff0>Execute</span>() <span style=color:violet>error</span> {
+	<span style=color:red>var</span> err <span style=color:violet>error</span>
+	<span style=color:red>defer</span> <span style=color:red>func</span>() { <span style=color:#ff0>SendErrIfExists</span>(err) }()
+
+	err = <span style=color:#ff0>DoSomething</span>()
+	<span style=color:red>if</span> !errors.<span style=color:#ff0>Is</span>(err, ErrCanIgnore) {
+		<span style=color:red>return</span> err
+	}
+
+	err = <span style=color:red>nil</span>
+	<span style=color:red>return</span> err
+}
+</code></pre></div><p>最終行の <code>return err</code> は <code>return nil</code> のままでも良いが、
+こちらのほうがerrの中身に意識がいくため意図に気づきやすいのではないだろうか。</p><h3 id=別名の変数を使う>別名の変数を使う</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=color:red>func</span> <span style=color:#ff0>Execute</span>() <span style=color:violet>error</span> {
+	<span style=color:red>var</span> errLogged <span style=color:violet>error</span>
+	<span style=color:red>defer</span> <span style=color:red>func</span>() { <span style=color:#ff0>SendErrIfExists</span>(errLogged) }()
+
+	err := <span style=color:#ff0>DoSomething</span>()
+	<span style=color:red>if</span> !errors.<span style=color:#ff0>Is</span>(err, ErrCanIgnore) {
+		errLogged = err
+		<span style=color:red>return</span> err
+	}
+
+	<span style=color:red>return</span> <span style=color:red>nil</span>
+}
+</code></pre></div><p>errとの混同は起きないが、単純に代入し忘れるのであんまりおすすめできない。</p><h1 id=まとめ>まとめ</h1><p>deferで実行する関数は別に返り値を参照するわけではないのだが見落としがちなエラーだった。
+この手のロギングは定型句として扱いがちなのでレビューのときは疑ってかかるようにしたい。
+deferでerr変数を参照する場合はreturnで必ずerr変数を返すようにしておくのが手堅いので、
+機械的に保護するならこれをチェックするような静的解析器があると良さそう。</p></div><div class=post-info><div class=post-date>2020-12-04</div><div class=post-taxonomies></div></div></article><div class="pagination post-pagination"><div class="left pagination-item disabled"></div><div class="right pagination-item"><a href=/posts/684683943/>[BigQuery] 抽出対象から一部のカラムを除く</a></div></div></main><footer class=common-footer><div class=copyright><p>© ques0942, 2020<br>Powered by <a target=_blank rel="noopener noreferrer" href=https://gohugo.io/>Hugo</a>, theme <a target=_blank rel="noopener noreferrer" href=https://github.com/mitrichius/hugo-theme-anubis>Anubis</a>.</p></div></footer></div></body></html>
