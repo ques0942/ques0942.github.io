@@ -1,0 +1,28 @@
+<!doctype html><html lang=en-us data-theme><head><meta charset=utf-8><meta name=HandheldFriendly content="True"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=referrer content="no-referrer-when-downgrade"><title>Sliceを更に小さいSliceに分割して処理するサンプル - 常にいまいち</title><meta name=description content="blog for something"><link rel=icon type=image/x-icon href=https://blog.app.melvins-nest.com/favicon.ico><link rel=apple-touch-icon-precomposed href=https://blog.app.melvins-nest.com/favicon.png><link rel=stylesheet href="https://blog.app.melvins-nest.com/css/light.css?rnd=1618146507"><style>[data-theme=dark]{--font-color: #eee;--bg-color: #212121;--link-color:#599ada;--link-state-color:#ff5858;--link-state-border-color: rgba(238, 54, 54, 0.5);--thead-bg-color: #343a40;--table-border-color: lightgrey;--pre-color: #333;--pre-bg-color: #f1f1f1;--bq-color: #ccc;--hr-color: #333;--pagination-bg-color: #373737;--pagination-link-color: #b6b6b6;--post-info-color: grey;--switcher-color: #333;--switcher-bg-color: #fff}</style><link rel=stylesheet href="https://blog.app.melvins-nest.com/css/style.css?rnd=1618146507"><meta property="og:title" content="Sliceを更に小さいSliceに分割して処理するサンプル"><meta property="og:description" content="確認した環境 go1.16.3
+使いみち バッチジョブなどの負荷を下げるために小規模のバッチに変換するようなときに使う。
+コード片 package main import ( &#34;fmt&#34; &#34;strings&#34; ) func main() { ar := make([]string, 1000) for i := range ar { ar[i] = fmt.Sprint(i) } batchSize := 30 for i := 0; i < len(ar); i += batchSize { end := i + batchSize if len(ar) < end { end = len(ar) } batch := ar[i:end] fmt.Println(strings.Join(batch, &#34;,&#34;)) } } refs: https://play.golang.org/p/gKaNr3KFHae"><meta property="og:type" content="article"><meta property="og:url" content="https://blog.app.melvins-nest.com/posts/855299391/"><meta property="article:published_time" content="2021-04-11T12:50:49+00:00"><meta property="article:modified_time" content="2021-04-11T12:50:49+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Sliceを更に小さいSliceに分割して処理するサンプル"><meta name=twitter:description content="確認した環境 go1.16.3
+使いみち バッチジョブなどの負荷を下げるために小規模のバッチに変換するようなときに使う。
+コード片 package main import ( &#34;fmt&#34; &#34;strings&#34; ) func main() { ar := make([]string, 1000) for i := range ar { ar[i] = fmt.Sprint(i) } batchSize := 30 for i := 0; i < len(ar); i += batchSize { end := i + batchSize if len(ar) < end { end = len(ar) } batch := ar[i:end] fmt.Println(strings.Join(batch, &#34;,&#34;)) } } refs: https://play.golang.org/p/gKaNr3KFHae"></head><body><a class=skip-main href=#main>Skip to main content</a><div class=container><header class=common-header><h1 class=site-title><a href=/>常にいまいち</a></h1><nav></nav></header><main id=main tabindex=-1><article class=post><header class=post-header><h1 class=post-title>Sliceを更に小さいSliceに分割して処理するサンプル</h1></header><div class=content><h1 id=確認した環境>確認した環境</h1><p><code>go1.16.3</code></p><h1 id=使いみち>使いみち</h1><p>バッチジョブなどの負荷を下げるために小規模のバッチに変換するようなときに使う。</p><h1 id=コード片>コード片</h1><div class=highlight><pre style=color:#f8f8f2;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=color:red>package</span> main
+
+<span style=color:red>import</span> (
+	<span style=color:#87ceeb>&#34;fmt&#34;</span>
+	<span style=color:#87ceeb>&#34;strings&#34;</span>
+)
+
+<span style=color:red>func</span> <span style=color:#ff0>main</span>() {
+	ar := make([]<span style=color:violet>string</span>, <span style=color:#f60>1000</span>)
+	<span style=color:red>for</span> i := <span style=color:red>range</span> ar {
+		ar[i] = fmt.<span style=color:#ff0>Sprint</span>(i)
+	}
+	batchSize := <span style=color:#f60>30</span>
+	<span style=color:red>for</span> i := <span style=color:#f60>0</span>; i &lt; len(ar); i += batchSize {
+		end := i + batchSize
+		<span style=color:red>if</span> len(ar) &lt; end {
+			end = len(ar)
+		}
+		batch := ar[i:end]
+		fmt.<span style=color:#ff0>Println</span>(strings.<span style=color:#ff0>Join</span>(batch, <span style=color:#87ceeb>&#34;,&#34;</span>))
+	}
+}
+
+</code></pre></div><p>refs: <a href=https://play.golang.org/p/gKaNr3KFHae>https://play.golang.org/p/gKaNr3KFHae</a></p></div><div class=post-info><div class=post-date>2021-04-11</div><div class=post-taxonomies></div></div></article><div class="pagination post-pagination"><div class="left pagination-item disabled"></div><div class="right pagination-item"><a href=/posts/757248312/>[Golang] deferでerrorを参照しようとしてハマった</a></div></div></main><footer class=common-footer><div class=copyright><p>© ques0942, 2021<br>Powered by <a target=_blank rel="noopener noreferrer" href=https://gohugo.io/>Hugo</a>, theme <a target=_blank rel="noopener noreferrer" href=https://github.com/mitrichius/hugo-theme-anubis>Anubis</a>.</p></div></footer></div></body></html>
